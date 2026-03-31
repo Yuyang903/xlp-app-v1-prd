@@ -196,7 +196,7 @@
                 
                 <h4 style="margin-top: 20px;">2.1 核心概念</h4>
                 <ul>
-                    <li><strong>NFC卡 / 二维码</strong>：绑定数字资产的物理介质。无论是内置在实体专辑、小卡中的 NFC 芯片，还是印刷在商品上的二维码，其底层原理一致，均具有系统级的<strong style="color: red;">全局唯一性</strong>，作为用户在线下确认身份并领取对应数字资产的唯一密钥。</li>
+                    <li><strong>NFC卡 / 二维码</strong>：绑定数字资产的物理介质。无论是内置在实体专辑、小卡中的 NFC 芯片，还是印刷在商品上的二维码，其底层原理一致，唯一性NFC均具有系统级的<strong style="color: red;">全局唯一性</strong>，作为用户在线下确认身份并领取对应数字资产的唯一密钥。公用NFC卡不具有唯一性，任何人感应/扫码均可以用于绑定徽章或小卡。</li>
                     <li><strong>商品 (SKU)</strong>：用户实际购买的物理或虚拟产品配置（例如：A平台特典版实体专辑、B平台常规版实体专辑、独立小卡盲盒等）。</li>
                     <li><strong>收藏品</strong>：数字资产的顶层容器。对应某个具体的音乐专辑或项目，包含该专辑下的所有音乐、MV、写真、社区权限以及专属的小卡图鉴和徽章墙。<em>（注：多个商品配置可能映射到同一个收藏品，例如不同平台的特典版实体专辑，激活后获得的是相同的核心数字收藏品内容）</em>。</li>
                     <li><strong>数字资产</strong>：
@@ -234,27 +234,27 @@
                 <h4 style="margin-top: 20px;">2.4 资产绑定路径</h4>
                 <p>物理介质（NFC卡）与数字资产的映射与激活路径分为以下几种情况：</p>
                 <ol>
-                    <li><strong>NFC 绑收藏品</strong>
+                    <li><strong>介质识别 绑收藏品</strong>
                         <ul>
-                            <li><strong>路径</strong>：NFC卡 &rarr; 商品 &rarr; 收藏品</li>
+                            <li><strong>路径</strong>：介质识别 &rarr; 商品 &rarr; 收藏品</li>
                             <li><strong>说明</strong>：用户激活后，直接获得该商品对应的“数字收藏品（完整版）”，并<strong style="color: red;">拥有完整的数字资产权限</strong>（可收听音乐、观看 MV 等）。</li>
                         </ul>
                     </li>
-                    <li><strong>NFC 绑小卡（同时拥有该收藏品）（有数字资产权限）</strong>
+                    <li><strong>介质识别 绑小卡（同时拥有该收藏品）（有数字资产权限）</strong>
                         <ul>
-                            <li><strong>路径</strong>：NFC卡 &rarr; 商品 &rarr; 收藏品 &rarr; 特定小卡</li>
+                            <li><strong>路径</strong>：介质识别 &rarr; 商品 &rarr; 收藏品 &rarr; 特定小卡</li>
                             <li><strong>说明</strong>：激活后，用户在点亮特定数字小卡的同时，也获得了该小卡所属的完整“数字收藏品”，并且<strong style="color: red;">拥有该收藏品下核心数字资产的消费权限</strong>（可听歌、看 MV 等）。</li>
                         </ul>
                     </li>
-                    <li><strong>NFC 绑小卡（同时拥有该收藏品）（无数字资产权限）</strong>
+                    <li><strong>介质识别 绑小卡（同时拥有该收藏品）（无数字资产权限）</strong>
                         <ul>
-                            <li><strong>路径</strong>：NFC卡 &rarr; 商品 &rarr; 收藏品容器 &rarr; 特定小卡</li>
+                            <li><strong>路径</strong>：介质识别 &rarr; 商品 &rarr; 收藏品容器 &rarr; 特定小卡</li>
                             <li><strong>说明</strong>：在特定活动或独立小卡售卖场景中，激活后用户获得了特定数字小卡，并点亮了该小卡所属的“收藏品”容器，但<strong style="color: red;">未获得该收藏品下核心数字资产的权限</strong>。用户可以在图鉴中欣赏小卡，但无法在该收藏品下收听音乐或观看 MV。</li>
                         </ul>
                     </li>
-                    <li><strong>NFC 绑徽章（同时拥有该收藏品）（无数字资产权限）</strong>
+                    <li><strong>介质识别 绑徽章（同时拥有该收藏品）（无数字资产权限）</strong>
                         <ul>
-                            <li><strong>路径</strong>：NFC卡 &rarr; 活动/商品 &rarr; 收藏品容器 &rarr; 特定徽章</li>
+                            <li><strong>路径</strong>：介质识别 &rarr; 活动/商品 &rarr; 收藏品容器 &rarr; 特定徽章</li>
                             <li><strong>说明</strong>：常见于线下打卡等场景，用户感应后获得了特定的荣誉徽章，并点亮了对应的“收藏品”容器，但同样<strong style="color: red;">未获得该收藏品下核心数字资产的权限</strong>（无法听歌/看MV）。</li>
                         </ul>
                     </li>
