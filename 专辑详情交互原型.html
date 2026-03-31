@@ -398,6 +398,60 @@
         .card-text-main { color: #fff; font-size: 12px; font-weight: bold; }
         .card-text-sub { color: #ccc; font-size: 10px; }
 
+        /* 小卡放大翻转相关样式 */
+        #card-overlay {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .flip-card-container {
+            width: 260px;
+            height: 390px;
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 16px;
+        }
+
+        .flip-card-container.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .flip-card-front {
+            background-color: #2b2c31;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, #2b2c31, #17181c);
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
         /* === 4. 写真页内容 === */
         .photo-list {
             display: flex;
@@ -624,6 +678,139 @@
             box-shadow: 0 5px 15px rgba(255,255,255,0.2);
             z-index: 100;
             cursor: pointer;
+        }
+
+        /* 小卡大图模态框 (3D 翻转) */
+        .card-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 600;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .card-flip-container {
+            width: 260px;
+            height: 390px;
+            perspective: 1000px;
+            margin-bottom: 40px;
+        }
+
+        .card-flipper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card-flipper.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background-color: #2b2c31;
+        }
+
+        .card-front {
+            background-image: url('./陶喆封面图.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card-back-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-back-text {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .card-back-serial {
+            color: #4ad8db;
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        .flip-hint {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 70%;
+        }
+
+        .card-btn {
+            padding: 14px 0;
+            border-radius: 25px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ad8db 0%, #00d0ff 100%);
+            color: #000;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         /* === 7. 播放器全屏页 === */
@@ -1175,7 +1362,7 @@
         <div id="tab-card" class="tab-content">
             <div class="card-grid">
                 <!-- 解锁的小卡 -->
-                <div class="card-item" style="background-image: url('./陶喆封面图.png');" onclick="showToast('查看小卡大图')">
+                <div class="card-item" style="background-image: url('./陶喆封面图.png');" onclick="openCardModal()">
                     <div class="card-info-overlay">
                         <div>
                             <div class="card-text-main">陶喆</div>
@@ -1188,8 +1375,8 @@
                 <div class="card-item locked" onclick="showToast('该小卡尚未解锁')"></div>
                 
                 <!-- 更多模拟小卡 -->
-                <div class="card-item" style="background: #444; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="showToast('查看小卡大图')">模拟图片1</div>
-                <div class="card-item" style="background: #333; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="showToast('查看小卡大图')">模拟图片2</div>
+                <div class="card-item" style="background: #444; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="openCardModal()">模拟图片1</div>
+                <div class="card-item" style="background: #333; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="openCardModal()">模拟图片2</div>
             </div>
         </div>
 
@@ -1288,6 +1475,34 @@
 
     <!-- 吐司提示 -->
     <div id="toast" class="toast">提示信息</div>
+
+    <!-- 小卡大图模态框 -->
+    <div id="card-modal" class="card-modal-overlay">
+        <div class="card-flip-container" onclick="flipCard()">
+            <div class="card-flipper" id="card-flipper">
+                <!-- 正面：小卡图 -->
+                <div class="card-front"></div>
+                <!-- 背面：信息与编号 -->
+                <div class="card-back">
+                    <div class="card-back-logo">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="card-back-text">「Stupid Pop Songs」<br>专属数字小卡</div>
+                    <div class="card-back-serial">NO. 0089757</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flip-hint">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.13 15.57a10 10 0 1 0 3.43-11.44l-4.13 3.93"/></svg>
+            点击卡片翻转
+        </div>
+
+        <div class="card-action-btns">
+            <div class="card-btn btn-primary" onclick="showToast('正在前往专题页...')">进入专题页</div>
+            <div class="card-btn btn-outline" onclick="closeCardModal()">关闭</div>
+        </div>
+    </div>
 
     <!-- === 7. 播放器全屏页 === -->
     <div id="player-overlay" class="player-overlay">
@@ -1523,6 +1738,22 @@
         setTimeout(() => {
             document.getElementById('dim-overlay').style.display = 'none';
         }, 300);
+    }
+
+    // === 小卡模态框逻辑 ===
+    function openCardModal() {
+        const modal = document.getElementById('card-modal');
+        modal.classList.add('active');
+        // 重置翻转状态
+        document.getElementById('card-flipper').classList.remove('flipped');
+    }
+
+    function closeCardModal() {
+        document.getElementById('card-modal').classList.remove('active');
+    }
+
+    function flipCard() {
+        document.getElementById('card-flipper').classList.toggle('flipped');
     }
 
 </script>
