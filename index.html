@@ -264,7 +264,114 @@
 
         <!-- 3. 用户体系 -->
         <div class="section">
-            <h2>3. 用户体系</h2>
+            <h2>3. 核心资产数据库结构设计</h2>
+            <p>为了支撑上述的小卡、NFC、收藏品、徽章及复杂的权限绑定关系，系统需要设计合理的底层数据表结构。以下为核心表结构设计（点击展开查看详细字段）：</p>
+            
+            <details style="background: #f8f9fa; border: 1px solid #eef0f3; border-radius: 8px; padding: 15px; margin-top: 15px; cursor: pointer;">
+                <summary style="font-weight: bold; color: #2c3e50; font-size: 16px; outline: none;">点击展开/折叠：核心资产数据库表结构</summary>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                    
+                    <h4 style="color: #3498db; margin-bottom: 10px;">1. `nfc_tags` (NFC介质/二维码表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">记录发行的所有物理介质（NFC或二维码）及其类型与激活状态。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `nfc_tags` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `uid` VARCHAR(64) UNIQUE NOT NULL COMMENT 'NFC芯片唯一UID或二维码内容',
+  `type` TINYINT NOT NULL COMMENT '介质类型: 1-唯一性NFC(绑定即消耗), 2-公用NFC(可重复打卡)',
+  `target_type` VARCHAR(32) NOT NULL COMMENT '绑定目标类型: collection(藏品), card(小卡), badge(徽章)',
+  `target_id` BIGINT NOT NULL COMMENT '关联的目标ID(具体商品ID或活动ID)',
+  `is_activated` TINYINT DEFAULT 0 COMMENT '激活状态: 0-未激活, 1-已激活(针对唯一性NFC)',
+  `activated_by` BIGINT DEFAULT NULL COMMENT '激活该NFC的用户ID',
+  `activated_at` DATETIME DEFAULT NULL COMMENT '激活时间',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+);</pre>
+
+                    <h4 style="color: #3498db; margin-top: 20px; margin-bottom: 10px;">2. `collections` (数字收藏品字典表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">定义系统中的顶级数字专辑容器。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `collections` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(128) NOT NULL COMMENT '收藏品名称(如: STUPID POP SONGS)',
+  `artist` VARCHAR(64) NOT NULL COMMENT '艺人名称',
+  `cover_url` VARCHAR(255) COMMENT '封面图URL',
+  `description` TEXT COMMENT '专辑介绍',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+);</pre>
+
+                    <h4 style="color: #3498db; margin-top: 20px; margin-bottom: 10px;">3. `cards_dict` (数字小卡字典表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">定义所有可用的小卡模板，包括普通卡和编码卡。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `cards_dict` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `collection_id` BIGINT NOT NULL COMMENT '所属收藏品ID',
+  `name` VARCHAR(64) NOT NULL COMMENT '小卡名称',
+  `image_url` VARCHAR(255) NOT NULL COMMENT '小卡图片',
+  `is_coded` TINYINT DEFAULT 0 COMMENT '是否为编码稀有卡: 0-否, 1-是',
+  `total_issue` INT DEFAULT 0 COMMENT '发行总数(针对编码卡)',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`collection_id`) REFERENCES `collections`(`id`)
+);</pre>
+
+                    <h4 style="color: #3498db; margin-top: 20px; margin-bottom: 10px;">4. `badges_dict` (徽章字典表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">定义系统中可获得的各种荣誉徽章。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `badges_dict` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `collection_id` BIGINT NOT NULL COMMENT '所属收藏品容器ID',
+  `name` VARCHAR(64) NOT NULL COMMENT '徽章名称(如: 现场打卡徽章)',
+  `icon_url` VARCHAR(255) NOT NULL COMMENT '徽章图标URL',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`collection_id`) REFERENCES `collections`(`id`)
+);</pre>
+
+                    <h4 style="color: #3498db; margin-top: 20px; margin-bottom: 10px;">5. `user_collections` (用户收藏品资产表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">记录用户拥有的收藏品容器及核心数字资产权限。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `user_collections` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `collection_id` BIGINT NOT NULL COMMENT '收藏品ID',
+  `has_digital_rights` TINYINT DEFAULT 0 COMMENT '是否有数字资产权限(听歌/看MV): 0-无, 1-有',
+  `source_nfc_id` BIGINT COMMENT '来源NFC ID',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY `idx_user_collection` (`user_id`, `collection_id`),
+  FOREIGN KEY (`collection_id`) REFERENCES `collections`(`id`)
+);</pre>
+
+                    <h4 style="color: #3498db; margin-top: 20px; margin-bottom: 10px;">6. `user_cards` (用户小卡资产表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">记录用户具体拥有的小卡实例。普通卡去重，编码卡可重复并记录唯一编号。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `user_cards` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `card_dict_id` BIGINT NOT NULL COMMENT '小卡字典ID',
+  `collection_id` BIGINT NOT NULL COMMENT '冗余:所属收藏品ID',
+  `serial_number` VARCHAR(32) DEFAULT NULL COMMENT '唯一编码(仅编码小卡有值,如: NO.038495)',
+  `source_nfc_id` BIGINT COMMENT '来源NFC ID',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`card_dict_id`) REFERENCES `cards_dict`(`id`)
+);</pre>
+
+                    <h4 style="color: #3498db; margin-top: 20px; margin-bottom: 10px;">7. `user_badges` (用户徽章资产表)</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">记录用户点亮的徽章记录。</p>
+                    <pre style="background: #2b2b2b; color: #f8f8f2; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 13px;">
+CREATE TABLE `user_badges` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `badge_dict_id` BIGINT NOT NULL COMMENT '徽章字典ID',
+  `collection_id` BIGINT NOT NULL COMMENT '冗余:所属收藏品ID',
+  `source_nfc_id` BIGINT COMMENT '打卡来源NFC ID',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY `idx_user_badge` (`user_id`, `badge_dict_id`),
+  FOREIGN KEY (`badge_dict_id`) REFERENCES `badges_dict`(`id`)
+);</pre>
+                </div>
+            </details>
+        </div>
+
+        <!-- 4. 用户体系 -->
+        <div class="section">
+            <h2>4. 用户体系</h2>
             <div class="function-desc">
                 <ul>
                     <li><strong>账号体系</strong>：是用户在 App 内的唯一身份标识，所有的数字资产（专辑、小卡、社区数据）均与该账号强绑定。<strong style="color: red;">用户可以直接使用手机号登录注册；也可以使用微信、微博授权登录注册，但注册后，仍然必须绑定手机号。</strong></li>
@@ -275,7 +382,7 @@
         </div>
 
         <div class="section">
-            <h2>4. 核心功能架构</h2>
+            <h2>5. 核心功能架构</h2>
             <p>App 主要分为以下几个核心模块：</p>
             <ul>
                 <li><strong>登录/注册模块</strong>：支持验证码、密码登录，以及首次登录的资料完善。</li>
@@ -288,10 +395,10 @@
         </div>
 
         <div class="section">
-            <h2>5. 功能模块详细说明</h2>
+            <h2>6. 功能模块详细说明</h2>
 
-            <!-- 5.1 -->
-            <h3>5.1 登录与注册/找回密码</h3>
+            <!-- 6.1 -->
+            <h3>6.1 登录与注册/找回密码</h3>
             <p>为提供更直观的交互体验，该模块已制作成高保真交互原型，请直接在下方操作体验：</p>
             <div class="function-desc">
                 <h4>功能说明：</h4>
@@ -309,8 +416,8 @@
                 <iframe src="./登录模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
-            <!-- 5.2 -->
-            <h3>5.2 首页 (数字专辑柜)</h3>
+            <!-- 6.2 -->
+            <h3>6.2 首页 (数字专辑柜)</h3>
             <p>为提供更直观的交互体验，该模块已制作成高保真交互原型，请直接在下方操作体验：</p>
             <div class="function-desc">
                 <h4>功能说明：</h4>
@@ -325,8 +432,8 @@
                 <iframe src="./首页模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
-            <!-- 5.3 -->
-            <h3>5.3 识别与添加模块</h3>
+            <!-- 6.3 -->
+            <h3>6.3 识别与添加模块</h3>
             <p>为提供更直观的交互体验，该模块已制作成高保真交互原型，请直接在下方操作体验：</p>
             <div class="function-desc">
                 <h4>功能说明：</h4>
@@ -340,28 +447,28 @@
                 <iframe src="./识别与添加模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
-            <!-- 5.4 -->
-            <h3>5.4 专辑详情与消费模块 (核心)</h3>
+            <!-- 6.4 -->
+            <h3>6.4 专辑详情与消费模块 (核心)</h3>
             <p>为提供更直观的交互体验，该模块已制作成高保真交互原型，请直接在下方操作体验：</p>
             <div class="function-desc">
                 <h4>功能说明：</h4>
                 <p>进入具体的数字专辑后，展示专辑维度的所有专属内容，按 Tab 分类：</p>
                 <ul>
-                    <li><strong>5.4.1 专辑（音乐）</strong>：默认展示完整的曲目列表及专辑介绍，点击单曲可拉起全屏播放器。</li>
-                    <li><strong>5.4.2 MV</strong>：展示专辑关联的官方音乐视频列表。</li>
-                    <li><strong>5.4.3 写真</strong>：展示高清电子写真图集或海报。</li>
-                    <li><strong>5.4.4 小卡</strong>：展示随专辑附赠或独立购买的数字小卡，未获得的小卡呈锁定状态。</li>
-                    <li><strong>5.4.5 徽章</strong>：仅展示用户已点亮（获得）的专属数字徽章。</li>
-                    <li><strong>5.4.6 权益</strong>：作为该数字资产的官方“公告栏”，集中发布与该专辑相关的专属活动（如线下见面会抽选、周边领取）、物流发货通知及售后服务信息。</li>
-                    <li><strong>5.4.7 社区（暂不开放）</strong>：该专辑的专属粉丝交流区，支持按最热/最新排序，支持发布图文动态。</li>
+                    <li><strong>6.4.1 专辑（音乐）</strong>：默认展示完整的曲目列表及专辑介绍，点击单曲可拉起全屏播放器。</li>
+                    <li><strong>6.4.2 MV</strong>：展示专辑关联的官方音乐视频列表。</li>
+                    <li><strong>6.4.3 写真</strong>：展示高清电子写真图集或海报。</li>
+                    <li><strong>6.4.4 小卡</strong>：展示随专辑附赠或独立购买的数字小卡，未获得的小卡呈锁定状态。</li>
+                    <li><strong>6.4.5 徽章</strong>：仅展示用户已点亮（获得）的专属数字徽章。</li>
+                    <li><strong>6.4.6 权益</strong>：作为该数字资产的官方“公告栏”，集中发布与该专辑相关的专属活动（如线下见面会抽选、周边领取）、物流发货通知及售后服务信息。</li>
+                    <li><strong>6.4.7 社区（暂不开放）</strong>：该专辑的专属粉丝交流区，支持按最热/最新排序，支持发布图文动态。</li>
                 </ul>
             </div>
             <div style="display: flex; justify-content: center; margin: 30px 0;">
                 <iframe src="./专辑详情交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
-            <!-- 5.5 -->
-            <h3>5.5 消息通知模块</h3>
+            <!-- 6.5 -->
+            <h3>6.5 消息通知模块</h3>
             <p>为提供更直观的交互体验，该模块已制作成高保真交互原型，请直接在下方操作体验：</p>
             <div class="function-desc">
                 <h4>功能说明：</h4>
@@ -374,8 +481,8 @@
                 <iframe src="./消息通知模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
-            <!-- 5.6 -->
-            <h3>5.6 个人中心模块</h3>
+            <!-- 6.6 -->
+            <h3>6.6 个人中心模块</h3>
             <p>为提供更直观的交互体验，该模块已制作成高保真交互原型，请直接在下方操作体验：</p>
             <div class="function-desc">
                 <h4>功能说明：</h4>
@@ -393,7 +500,7 @@
         </div>
 
         <div class="section">
-            <h2>6. 后续规划与建议</h2>
+            <h2>7. 后续规划与建议</h2>
             <ul>
                 <li><strong>数据埋点</strong>：建议在 NFC 识别成功率、核心页面停留时长、播放器使用率上做好数据埋点。</li>
                 <li><strong>性能与并发预估</strong>：
