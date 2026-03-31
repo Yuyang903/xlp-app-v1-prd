@@ -98,103 +98,6 @@
             font-weight: 600;
         }
 
-        /* Home Mock (to show the + button) */
-        .home-mock {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(180deg, #2a2a2e 0%, #121212 100%);
-            position: relative;
-        }
-
-        .add-btn-main {
-            width: 60px;
-            height: 60px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            color: #000;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-            transition: transform 0.2s;
-        }
-
-        .add-btn-main:active {
-            transform: scale(0.95);
-        }
-
-        /* Bottom Sheet for Add Options */
-        .add-sheet {
-            position: absolute;
-            bottom: -100%;
-            left: 0;
-            width: 100%;
-            background: #2c2c2e;
-            border-radius: 20px 20px 0 0;
-            transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
-            z-index: 201;
-            padding: 30px 20px 40px;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .add-sheet.active {
-            bottom: 0;
-        }
-
-        .add-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-        }
-
-        .add-option-icon {
-            width: 70px;
-            height: 70px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .add-option-icon svg {
-            width: 32px;
-            height: 32px;
-            fill: #fff;
-        }
-
-        .add-option-text {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Overlay */
-        .sheet-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(2px);
-            z-index: 200;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .sheet-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-
         /* Tab Switcher */
         .tab-switcher {
             display: flex;
@@ -481,21 +384,11 @@
         </div>
     </div>
 
-    <!-- Home Page -->
-    <div class="page active" id="page-home">
-        <div class="header" style="justify-content: center;">
-            <div class="page-title">首页</div>
-        </div>
-        <div class="home-mock">
-            <div class="add-btn-main" onclick="openAddSheet()">+</div>
-        </div>
-    </div>
-
     <!-- Scan Page -->
-    <div class="page" id="page-scan">
+    <div class="page active" id="page-scan">
         <div class="header">
-            <div class="back-btn" onclick="closeScanPage()">‹</div>
-            <div class="page-title"></div>
+            <div class="back-btn">‹</div>
+            <div class="page-title">添加实体专辑</div>
         </div>
 
         <div class="tab-switcher">
@@ -572,55 +465,9 @@
         绑定成功，资产已下发
     </div>
 
-    <!-- Bottom Sheet & Overlay -->
-    <div class="sheet-overlay" id="sheetOverlay" onclick="closeAddSheet()"></div>
-    <div class="add-sheet" id="addSheet">
-        <div class="add-option" onclick="startScan('nfc')">
-            <div class="add-option-icon" style="background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);">
-                <svg viewBox="0 0 24 24">
-                    <path d="M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12ZM19 12C19 15.866 15.866 19 12 19C8.13401 19 5 15.866 5 12C5 8.13401 8.13401 5 12 5C15.866 5 19 8.13401 19 12ZM16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12ZM14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10C13.1046 10 14 10.8954 14 12Z"/>
-                </svg>
-            </div>
-            <div class="add-option-text">NFC 识别添加</div>
-        </div>
-        <div class="add-option" onclick="startScan('qr')">
-            <div class="add-option-icon" style="background: linear-gradient(135deg, #ffb199 0%, #ff0844 100%);">
-                <svg viewBox="0 0 24 24">
-                    <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2z"/>
-                </svg>
-            </div>
-            <div class="add-option-text">扫描二维码添加</div>
-        </div>
-    </div>
-
 </div>
 
 <script>
-    function openAddSheet() {
-        document.getElementById('sheetOverlay').classList.add('active');
-        document.getElementById('addSheet').classList.add('active');
-    }
-
-    function closeAddSheet() {
-        document.getElementById('sheetOverlay').classList.remove('active');
-        document.getElementById('addSheet').classList.remove('active');
-    }
-
-    function startScan(type) {
-        closeAddSheet();
-        setTimeout(() => {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-scan').classList.add('active');
-            switchTab(type);
-        }, 300); // Wait for bottom sheet animation
-    }
-
-    function closeScanPage() {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('page-home').classList.add('active');
-    }
-
-
     function switchTab(type) {
         // Update Tabs
         const tabs = document.querySelectorAll('.tab');
