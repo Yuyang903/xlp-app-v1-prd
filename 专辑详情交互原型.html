@@ -398,6 +398,28 @@
         .card-text-main { color: #fff; font-size: 12px; font-weight: bold; }
         .card-text-sub { color: #ccc; font-size: 10px; }
 
+        /* 金灿灿的编码标识 */
+        .card-code-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FFDF00, #DAA520);
+            color: #4A3500;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            z-index: 10;
+        }
+        .card-code-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
         /* === 4. 写真页内容 === */
         .photo-list {
             display: flex;
@@ -1279,6 +1301,10 @@
             <div class="card-grid">
                 <!-- 解锁的小卡 -->
                 <div class="card-item" style="background-image: url('./陶喆封面图.png');" onclick="openCardModal()">
+                    <div class="card-code-badge">
+                        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        编码款
+                    </div>
                     <div class="card-info-overlay">
                         <div>
                             <div class="card-text-main">陶喆</div>
