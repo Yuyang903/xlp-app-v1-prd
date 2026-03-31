@@ -77,45 +77,11 @@
             cursor: pointer;
         }
 
-        /* Tab Switcher */
-        .tab-switcher {
-            display: flex;
-            padding: 0 20px;
-            gap: 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 10px;
-        }
-
-        .tab {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.5);
-            padding: 10px 0;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .tab.active {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 3px;
-            background: #fff;
-            border-radius: 2px;
-        }
-
         /* Message List */
         .message-list {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 20px;
+            padding: 10px 20px 30px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -125,58 +91,47 @@
             display: none;
         }
 
-        .msg-item {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
+        /* Notice Card Style (Similar to Rights tab) */
+        .notice-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
             position: relative;
         }
 
-        .msg-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-        }
-        
-        .msg-icon.system { background: linear-gradient(135deg, #ff0844, #ffb199); }
-        .msg-icon.activity { background: linear-gradient(135deg, #f6d365, #fda085); }
-        .msg-icon.community { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-
-        .msg-icon svg {
-            width: 24px;
-            height: 24px;
-            fill: #fff;
+        .notice-img {
+            width: 100%;
+            height: 160px;
+            background: #333;
+            object-fit: cover;
         }
 
-        .msg-content {
-            flex: 1;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 20px;
+        .notice-content {
+            padding: 15px;
         }
 
-        .msg-header {
+        .notice-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
-        .msg-title {
+        .notice-title {
             font-size: 16px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .msg-time {
+        .notice-time {
             font-size: 12px;
             color: rgba(255,255,255,0.4);
         }
 
-        .msg-desc {
+        .notice-desc {
             font-size: 14px;
             color: rgba(255,255,255,0.6);
             line-height: 1.5;
@@ -186,15 +141,28 @@
             overflow: hidden;
         }
 
+        .notice-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+
+        .notice-footer:active {
+            opacity: 0.7;
+        }
+
         .unread-dot {
             width: 8px;
             height: 8px;
             background: #ff3b30;
             border-radius: 50%;
-            position: absolute;
-            top: 0;
-            left: 38px;
-            border: 2px solid #121212;
+            display: inline-block;
         }
 
         /* Empty State */
@@ -261,55 +229,69 @@
         <div class="clear-btn" onclick="clearAll()">全部已读</div>
     </div>
 
-    <div class="tab-switcher">
-        <div class="tab active">全部</div>
-        <div class="tab">系统通知</div>
-        <div class="tab">互动消息</div>
-    </div>
-
     <!-- Filled State -->
     <div class="message-list" id="msgList">
-        <!-- Msg 1 -->
-        <div class="msg-item">
-            <div class="msg-icon system">
-                <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
-            </div>
-            <div class="unread-dot"></div>
-            <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-title">订单发货通知</div>
-                    <div class="msg-time">刚刚</div>
+        <!-- Msg 1: Graphic Notice -->
+        <div class="notice-card">
+            <img src="https://images.unsplash.com/photo-1540039155732-684736382809?auto=format&fit=crop&w=800&q=80" alt="Concert" class="notice-img">
+            <div class="notice-content">
+                <div class="notice-header">
+                    <div class="notice-title">
+                        <span class="unread-dot"></span>
+                        线下打卡活动开启
+                    </div>
+                    <div class="notice-time">昨天 14:30</div>
                 </div>
-                <div class="msg-desc">您购买的《除了快乐禁止入内》A平台特典版实体专辑已发货，快递单号：SF1234567890，请注意查收。</div>
+                <div class="notice-desc">
+                    演唱会专属NFC打卡活动已开启！在场馆寻找公用NFC感应点，集齐7个子徽章即可合成完整高级徽章，解锁惊喜福利！
+                </div>
+                <div class="notice-footer">
+                    <span>查看详情</span>
+                    <span>›</span>
+                </div>
             </div>
         </div>
 
-        <!-- Msg 2 -->
-        <div class="msg-item">
-            <div class="msg-icon activity">
-                <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
-            </div>
-            <div class="unread-dot"></div>
-            <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-title">线下打卡活动开启</div>
-                    <div class="msg-time">昨天 14:30</div>
+        <!-- Msg 2: Text Notice -->
+        <div class="notice-card">
+            <div class="notice-content">
+                <div class="notice-header">
+                    <div class="notice-title">
+                        <span class="unread-dot"></span>
+                        订单发货通知
+                    </div>
+                    <div class="notice-time">刚刚</div>
                 </div>
-                <div class="msg-desc">演唱会专属NFC打卡活动已开启！在场馆寻找公用NFC感应点，集齐7个子徽章即可合成完整高级徽章，解锁惊喜福利！</div>
+                <div class="notice-desc" style="-webkit-line-clamp: 4;">
+                    您购买的《除了快乐禁止入内》A平台特典版实体专辑已发货。<br>
+                    快递公司：顺丰速运<br>
+                    快递单号：SF1234567890<br>
+                    请注意查收您的包裹，并在收到后及时绑定获取数字资产。
+                </div>
+                <div class="notice-footer">
+                    <span>查看物流</span>
+                    <span>›</span>
+                </div>
             </div>
         </div>
 
-        <!-- Msg 3 -->
-        <div class="msg-item">
-            <div class="msg-icon community">
-                <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-            </div>
-            <div class="msg-content">
-                <div class="msg-header">
-                    <div class="msg-title">社区互动提醒</div>
-                    <div class="msg-time">星期二</div>
+        <!-- Msg 3: Text Notice (Read) -->
+        <div class="notice-card">
+            <div class="notice-content">
+                <div class="notice-header">
+                    <div class="notice-title">
+                        <span class="unread-dot" style="display: none;"></span>
+                        社区互动提醒
+                    </div>
+                    <div class="notice-time">星期二</div>
                 </div>
-                <div class="msg-desc">用户 "MusicLover" 赞了你在《STUPID POP SONGS》社区发布的动态。</div>
+                <div class="notice-desc">
+                    用户 "MusicLover" 赞了你在《STUPID POP SONGS》社区发布的动态：“这首歌的编曲真的太惊艳了！”
+                </div>
+                <div class="notice-footer">
+                    <span>点击查看</span>
+                    <span>›</span>
+                </div>
             </div>
         </div>
     </div>
