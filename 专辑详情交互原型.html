@@ -1277,30 +1277,30 @@
         <!-- 4. 徽章 -->
         <div id="tab-badge" class="tab-content">
             <div class="badge-grid">
-                <!-- 解锁的徽章 -->
-                <div class="badge-item unlocked" onclick="showToast('查看徽章详情')">
-                    <!-- 使用渐变模拟设计稿中蓝色的广州站徽章 -->
-                    <div class="badge-icon" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative;">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                        <div style="position: absolute; bottom: -5px; background: #f6d365; color: #fff; font-size: 8px; padding: 2px 6px; border-radius: 4px;">快闪·广州站</div>
+                <div class="badge-item unlocked" onclick="showToast('已获得「首发支持者」徽章')">
+                    <div class="badge-icon" style="background: linear-gradient(135deg, #ffd700, #ff8c00); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     </div>
-                    <div class="badge-name">线下快闪-广州站</div>
+                    <div class="badge-name">首发支持者</div>
                 </div>
-                
-                <!-- 未解锁徽章占位 -->
-                <script>
-                    for(let i=0; i<11; i++) {
-                        document.write(`
-                        <div class="badge-item" onclick="showToast('该徽章尚未解锁')">
-                            <div class="badge-icon" style="background: #333; border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative;">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                                <div style="position: absolute; bottom: -5px; background: #444; color: #777; font-size: 8px; padding: 2px 6px; border-radius: 4px;">快闪·广州站</div>
-                            </div>
-                            <div class="badge-name">线下快闪-广州站</div>
-                        </div>
-                        `);
-                    }
-                </script>
+                <div class="badge-item unlocked" onclick="showToast('已获得「现场打卡」徽章')">
+                    <div class="badge-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div class="badge-name">现场打卡</div>
+                </div>
+                <div class="badge-item unlocked" onclick="showToast('已获得「社区活跃」徽章')">
+                    <div class="badge-icon" style="background: linear-gradient(135deg, #ff0844, #ffb199); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="badge-name">社区活跃</div>
+                </div>
+                <div class="badge-item unlocked" onclick="showToast('已获得「全曲通关」徽章')">
+                    <div class="badge-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7); border-radius: 10px; display: flex; justify-content: center; align-items: center;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    </div>
+                    <div class="badge-name">全曲通关</div>
+                </div>
             </div>
         </div>
 
