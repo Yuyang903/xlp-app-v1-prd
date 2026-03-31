@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心模块交互原型</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .device-container {
+            width: 390px; height: 844px; background-color: #121212; position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); border-radius: 40px; color: #fff; display: flex; flex-direction: column;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+            color: #fff; font-size: 14px; font-weight: 600; z-index: 100; position: absolute; width: 100%; top: 0;
+        }
+        .dynamic-island { width: 120px; height: 30px; background: #000; border-radius: 15px; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); }
+
+        /* Pages */
+        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #121212; display: none; flex-direction: column; z-index: 10; }
+        .page.active { display: flex; }
+
+        /* Header for subpages */
+        .sub-header { padding: 60px 20px 15px; display: flex; align-items: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .back-btn { font-size: 24px; cursor: pointer; z-index: 11; }
+        .page-title { position: absolute; left: 0; width: 100%; text-align: center; font-size: 17px; font-weight: 600; }
+
+        /* --- Page: Home --- */
+        .home-top { padding: 80px 20px 30px; background: linear-gradient(180deg, #2a2a2e 0%, #121212 100%); }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 70px; height: 70px; border-radius: 50%; background: #333; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .user-info { flex: 1; }
+        .user-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+        .user-id { font-size: 13px; color: rgba(255,255,255,0.6); display: none; }
+        .login-tip { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+        .stats-row { display: flex; justify-content: space-around; margin: 20px 20px; padding: 20px 0; background: rgba(255,255,255,0.05); border-radius: 16px; }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+        .menu-list { padding: 0 20px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        .menu-item:active { opacity: 0.7; }
+        .menu-left { display: flex; align-items: center; gap: 15px; font-size: 16px; }
+        .menu-icon { width: 24px; height: 24px; fill: #fff; }
+        .arrow { color: rgba(255,255,255,0.4); font-size: 18px; }
+
+        /* --- Page: Profile --- */
+        .profile-list { padding: 20px; }
+        .profile-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .profile-label { font-size: 16px; }
+        .profile-val-group { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.6); font-size: 15px; }
+        .small-avatar { width: 40px; height: 40px; border-radius: 50%; background: #333; overflow: hidden; }
+        .small-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- Page: Feedback --- */
+        .feedback-content { padding: 20px; }
+        .fb-label { font-size: 15px; margin-bottom: 15px; display: block; }
+        .fb-types { display: flex; gap: 10px; margin-bottom: 25px; }
+        .fb-type { padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.1); font-size: 14px; }
+        .fb-type.active { background: #fff; color: #000; font-weight: bold; }
+        .fb-textarea { width: 100%; height: 150px; background: rgba(255,255,255,0.05); border: none; border-radius: 12px; padding: 15px; color: #fff; font-size: 15px; resize: none; margin-bottom: 20px; }
+        .fb-upload { width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 1px dashed rgba(255,255,255,0.3); font-size: 30px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
+        .submit-btn { width: 100%; padding: 15px; background: #fff; color: #000; border: none; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+        /* Modals */
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 200; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #2c2c2e; width: 300px; border-radius: 20px; padding: 25px 20px 20px; text-align: center; }
+        .modal-title { font-size: 17px; font-weight: bold; margin-bottom: 15px; }
+        .modal-desc { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 25px; line-height: 1.5; }
+        .modal-btns { display: flex; border-top: 1px solid rgba(255,255,255,0.1); margin: 0 -20px -20px; }
+        .modal-btn { flex: 1; padding: 15px 0; text-align: center; font-size: 16px; cursor: pointer; }
+        .modal-btn.cancel { border-right: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+        .modal-btn.confirm { color: #0a84ff; font-weight: bold; }
+        .modal-btn.danger { color: #ff3b30; font-weight: bold; }
+
+        /* Bottom Sheet (Date Picker) */
+        .bottom-sheet { position: absolute; bottom: -100%; left: 0; width: 100%; background: #2c2c2e; border-radius: 20px 20px 0 0; transition: bottom 0.3s; z-index: 201; padding-bottom: 30px; }
+        .bottom-sheet.active { bottom: 0; }
+        .sheet-header { display: flex; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sheet-btn { font-size: 15px; cursor: pointer; }
+        .sheet-btn.confirm { color: #0a84ff; font-weight: bold; }
+        .picker-area { height: 200px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .picker-highlight { position: absolute; width: 100%; height: 40px; background: rgba(255,255,255,0.05); top: 50%; transform: translateY(-50%); pointer-events: none; }
+        .picker-cols { display: flex; width: 100%; justify-content: space-around; z-index: 2; font-size: 18px; }
+        .col { text-align: center; color: rgba(255,255,255,0.4); line-height: 40px; }
+        .col .active-val { color: #fff; font-size: 20px; font-weight: bold; }
+
+        /* Dev Tools */
+        .dev-tools { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 300; }
+        .dev-btn { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        
+        /* Toast */
+        .toast { position: absolute; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); color: #000; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 400; font-weight: bold; }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="device-container">
+    <div class="status-bar">
+        <span>09:41</span>
+        <div class="dynamic-island"></div>
+        <div class="status-icons">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 9.5C1 10.3284 1.67157 11 2.5 11H13.5C14.3284 11 15 10.3284 15 9.5V2.5C15 1.67157 14.3284 1 13.5 1H2.5C1.67157 1 1 1.67157 1 2.5V9.5Z" stroke="white" stroke-width="1.5"/>
+                <path d="M17 4V8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M3 3H13V9H3V3Z" fill="white"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+        <div class="home-top">
+            <div class="user-profile" onclick="checkLoginAndNav('page-profile')">
+                <div class="avatar">
+                    <img id="avatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="avatar">
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">点击登录/注册</div>
+                    <div class="user-id" id="userId">ID: 89757</div>
+                    <div class="login-tip" id="loginTip">登录后体验更多功能</div>
+                </div>
+                <div class="arrow">›</div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-item" onclick="checkLoginAndNav('page-home')">
+                <div class="stat-num" id="stat1">-</div>
+                <div class="stat-label">收藏品</div>
+            </div>
+            <div class="stat-item" onclick="checkLoginAndNav('page-home')">
+                <div class="stat-num" id="stat2">-</div>
+                <div class="stat-label">数字小卡</div>
+            </div>
+            <div class="stat-item" onclick="checkLoginAndNav('page-home')">
+                <div class="stat-num" id="stat3">-</div>
+                <div class="stat-label">徽章</div>
+            </div>
+        </div>
+
+        <div class="menu-list">
+            <div class="menu-item" onclick="checkLoginAndNav('page-profile')">
+                <div class="menu-left">个人资料</div>
+                <div class="arrow">›</div>
+            </div>
+            <div class="menu-item" onclick="checkLoginAndNav('page-home')">
+                <div class="menu-left">我的订单</div>
+                <div class="arrow">›</div>
+            </div>
+            <div class="menu-item" onclick="checkLoginAndNav('page-feedback')">
+                <div class="menu-left">问题反馈</div>
+                <div class="arrow">›</div>
+            </div>
+            <div class="menu-item" onclick="openModal('unbindModal')" id="unbindMenu" style="display: none;">
+                <div class="menu-left">设备解绑</div>
+                <div class="arrow">›</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div class="page" id="page-profile">
+        <div class="sub-header">
+            <div class="back-btn" onclick="navTo('page-home')">‹</div>
+            <div class="page-title">个人资料</div>
+        </div>
+        <div class="profile-list">
+            <div class="profile-item">
+                <div class="profile-label">头像</div>
+                <div class="profile-val-group">
+                    <div class="small-avatar"><img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="avatar"></div>
+                    <div class="arrow">›</div>
+                </div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">昵称</div>
+                <div class="profile-val-group">
+                    <span>JayChou_Fan</span>
+                    <div class="arrow">›</div>
+                </div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-label">性别</div>
+                <div class="profile-val-group">
+                    <span>男</span>
+                    <div class="arrow">›</div>
+                </div>
+            </div>
+            <div class="profile-item" onclick="openSheet('dateSheet')">
+                <div class="profile-label">生日</div>
+                <div class="profile-val-group">
+                    <span id="birthVal">2000-01-01</span>
+                    <div class="arrow">›</div>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 20px;">
+            <button class="submit-btn" style="background: rgba(255,59,48,0.1); color: #ff3b30;" onclick="openModal('logoutModal')">退出登录</button>
+        </div>
+    </div>
+
+    <!-- FEEDBACK PAGE -->
+    <div class="page" id="page-feedback">
+        <div class="sub-header">
+            <div class="back-btn" onclick="navTo('page-home')">‹</div>
+            <div class="page-title">问题反馈</div>
+        </div>
+        <div class="feedback-content">
+            <span class="fb-label">问题类型</span>
+            <div class="fb-types">
+                <div class="fb-type active">功能异常</div>
+                <div class="fb-type">体验建议</div>
+                <div class="fb-type">其他</div>
+            </div>
+            
+            <textarea class="fb-textarea" placeholder="请详细描述您遇到的问题，以便我们更好地为您解决..."></textarea>
+            
+            <span class="fb-label">上传图片 (选填)</span>
+            <div class="fb-upload">+</div>
+
+            <button class="submit-btn" onclick="submitFeedback()">提交反馈</button>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <div class="modal-title">提示</div>
+            <div class="modal-desc">您需要登录后才能使用该功能</div>
+            <div class="modal-btns">
+                <div class="modal-btn cancel" onclick="closeModal('loginModal')">取消</div>
+                <div class="modal-btn confirm" onclick="simulateLogin()">去登录</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-box">
+            <div class="modal-title">退出登录</div>
+            <div class="modal-desc">确定要退出当前账号吗？</div>
+            <div class="modal-btns">
+                <div class="modal-btn cancel" onclick="closeModal('logoutModal')">取消</div>
+                <div class="modal-btn danger" onclick="simulateLogout()">确定退出</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unbind Modal -->
+    <div class="modal-overlay" id="unbindModal">
+        <div class="modal-box">
+            <div class="modal-title">解绑提示</div>
+            <div class="modal-desc">解绑后该设备将无法快速登录，是否确认解绑？</div>
+            <div class="modal-btns">
+                <div class="modal-btn cancel" onclick="closeModal('unbindModal')">取消</div>
+                <div class="modal-btn danger" onclick="closeModal('unbindModal'); showToast('解绑成功');">确认解绑</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Picker Bottom Sheet -->
+    <div class="modal-overlay" id="sheetOverlay" onclick="closeSheet('dateSheet')" style="background: rgba(0,0,0,0.4); z-index: 199;"></div>
+    <div class="bottom-sheet" id="dateSheet">
+        <div class="sheet-header">
+            <div class="sheet-btn" onclick="closeSheet('dateSheet')">取消</div>
+            <div style="font-weight: bold; font-size: 16px;">选择出生日期</div>
+            <div class="sheet-btn confirm" onclick="confirmDate()">确定</div>
+        </div>
+        <div class="picker-area">
+            <div class="picker-highlight"></div>
+            <div class="picker-cols">
+                <div class="col">
+                    <div>1998</div>
+                    <div>1999</div>
+                    <div class="active-val">2000</div>
+                    <div>2001</div>
+                    <div>2002</div>
+                </div>
+                <div class="col">
+                    <div>11</div>
+                    <div>12</div>
+                    <div class="active-val">01</div>
+                    <div>02</div>
+                    <div>03</div>
+                </div>
+                <div class="col">
+                    <div>30</div>
+                    <div>31</div>
+                    <div class="active-val">01</div>
+                    <div>02</div>
+                    <div>03</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toastMsg">提交成功</div>
+
+    <!-- Dev Tools -->
+    <div class="dev-tools">
+        <button class="dev-btn" onclick="setLoginState(false)">模拟未登录</button>
+        <button class="dev-btn" onclick="setLoginState(true)">模拟已登录</button>
+    </div>
+</div>
+
+<script>
+    let isLoggedIn = false;
+
+    function setLoginState(state) {
+        isLoggedIn = state;
+        document.getElementById('avatarImg').style.display = state ? 'block' : 'none';
+        document.getElementById('userName').innerText = state ? 'JayChou_Fan' : '点击登录/注册';
+        document.getElementById('userId').style.display = state ? 'block' : 'none';
+        document.getElementById('loginTip').style.display = state ? 'none' : 'block';
+        
+        document.getElementById('stat1').innerText = state ? '12' : '-';
+        document.getElementById('stat2').innerText = state ? '45' : '-';
+        document.getElementById('stat3').innerText = state ? '8' : '-';
+
+        document.getElementById('unbindMenu').style.display = state ? 'flex' : 'none';
+        
+        navTo('page-home');
+    }
+
+    function checkLoginAndNav(pageId) {
+        if (!isLoggedIn) {
+            openModal('loginModal');
+        } else {
+            navTo(pageId);
+        }
+    }
+
+    function navTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    function simulateLogin() {
+        closeModal('loginModal');
+        setLoginState(true);
+    }
+
+    function simulateLogout() {
+        closeModal('logoutModal');
+        setLoginState(false);
+    }
+
+    function openSheet(id) {
+        document.getElementById('sheetOverlay').classList.add('active');
+        document.getElementById(id).classList.add('active');
+    }
+
+    function closeSheet(id) {
+        document.getElementById('sheetOverlay').classList.remove('active');
+        document.getElementById(id).classList.remove('active');
+    }
+
+    function confirmDate() {
+        document.getElementById('birthVal').innerText = '2000-01-01';
+        closeSheet('dateSheet');
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toastMsg');
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function submitFeedback() {
+        showToast('感谢您的反馈！');
+        setTimeout(() => navTo('page-home'), 1500);
+    }
+
+    // Init state
+    setLoginState(false);
+</script>
+</body>
+</html>
