@@ -1162,10 +1162,10 @@
             <div class="tab-item active" onclick="switchTab('album')">专辑</div>
             <div class="tab-item" onclick="switchTab('mv')">MV</div>
             <div class="tab-item" onclick="switchTab('photo')">写真</div>
-            <div class="tab-item" onclick="switchTab('badge')">徽章</div>
             <div class="tab-item" onclick="switchTab('card')">小卡</div>
-            <div class="tab-item" onclick="switchTab('community')">社区</div>
+            <div class="tab-item" onclick="switchTab('badge')">徽章</div>
             <div class="tab-item" onclick="switchTab('rights')">权益</div>
+            <div class="tab-item" onclick="switchTab('community')">社区</div>
         </div>
     </div>
 
@@ -1274,7 +1274,29 @@
             </div>
         </div>
 
-        <!-- 4. 徽章 -->
+        <!-- 4. 小卡 -->
+        <div id="tab-card" class="tab-content">
+            <div class="card-grid">
+                <!-- 解锁的小卡 -->
+                <div class="card-item" style="background-image: url('./陶喆封面图.png');" onclick="openCardModal()">
+                    <div class="card-info-overlay">
+                        <div>
+                            <div class="card-text-main">陶喆</div>
+                            <div class="card-text-sub">David Tao</div>
+                        </div>
+                        <div style="color: #fff; font-size: 10px; font-weight: bold;">JVR Music</div>
+                    </div>
+                </div>
+                <!-- 未解锁小卡 (白板占位) -->
+                <div class="card-item locked" onclick="showToast('该小卡尚未解锁')"></div>
+                
+                <!-- 更多模拟小卡 -->
+                <div class="card-item" style="background: #444; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="openCardModal()">模拟图片1</div>
+                <div class="card-item" style="background: #333; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="openCardModal()">模拟图片2</div>
+            </div>
+        </div>
+
+        <!-- 5. 徽章 -->
         <div id="tab-badge" class="tab-content">
             <div class="badge-grid">
                 <div class="badge-item unlocked" onclick="showToast('已获得「首发支持者」徽章')">
@@ -1304,29 +1326,37 @@
             </div>
         </div>
 
-        <!-- 5. 小卡 -->
-        <div id="tab-card" class="tab-content">
-            <div class="card-grid">
-                <!-- 解锁的小卡 -->
-                <div class="card-item" style="background-image: url('./陶喆封面图.png');" onclick="openCardModal()">
-                    <div class="card-info-overlay">
-                        <div>
-                            <div class="card-text-main">陶喆</div>
-                            <div class="card-text-sub">David Tao</div>
-                        </div>
-                        <div style="color: #fff; font-size: 10px; font-weight: bold;">JVR Music</div>
+        <!-- 6. 权益 -->
+        <div id="tab-rights" class="tab-content">
+            <div class="rights-list">
+                <!-- 图文通知 -->
+                <div class="rights-item">
+                    <div class="rights-header">
+                        <span class="rights-tag">专属活动</span>
+                        <span class="rights-time">2025-04-25</span>
+                    </div>
+                    <div class="rights-title">「Soul Power」线下粉丝见面会抽选开启</div>
+                    <div class="rights-content">
+                        亲爱的藏家，您已获得本次陶喆线下见面会的专属抽选资格！点击下方链接或图片进入活动页面，填写信息即可参与抽奖，中奖名单将于下周一公布。
+                    </div>
+                    <div class="rights-img-wrapper"></div>
+                </div>
+
+                <!-- 纯文字通知 -->
+                <div class="rights-item">
+                    <div class="rights-header">
+                        <span class="rights-tag">发货通知</span>
+                        <span class="rights-time">2025-04-20</span>
+                    </div>
+                    <div class="rights-title">实体专辑第二批次发货进度更新</div>
+                    <div class="rights-content">
+                        尊敬的用户，您绑定的《STUPID POP SONGS》实体专辑第二批次已经开始陆续通过顺丰发货。受部分地区物流影响，预计将在 3-5 个工作日内送达，请注意查收快递通知。感谢您的耐心等待与支持！
                     </div>
                 </div>
-                <!-- 未解锁小卡 (白板占位) -->
-                <div class="card-item locked" onclick="showToast('该小卡尚未解锁')"></div>
-                
-                <!-- 更多模拟小卡 -->
-                <div class="card-item" style="background: #444; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="openCardModal()">模拟图片1</div>
-                <div class="card-item" style="background: #333; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="openCardModal()">模拟图片2</div>
             </div>
         </div>
 
-        <!-- 6. 社区 -->
+        <!-- 7. 社区 -->
         <div id="tab-community" class="tab-content">
             <div class="community-filters">
                 <div class="filter-btn active">最热</div>
@@ -1380,36 +1410,6 @@
                 </div>
             </div>
 
-        </div>
-
-        <!-- 7. 权益 -->
-        <div id="tab-rights" class="tab-content">
-            <div class="rights-list">
-                <!-- 图文通知 -->
-                <div class="rights-item">
-                    <div class="rights-header">
-                        <span class="rights-tag">专属活动</span>
-                        <span class="rights-time">2025-04-25</span>
-                    </div>
-                    <div class="rights-title">「Soul Power」线下粉丝见面会抽选开启</div>
-                    <div class="rights-content">
-                        亲爱的藏家，您已获得本次陶喆线下见面会的专属抽选资格！点击下方链接或图片进入活动页面，填写信息即可参与抽奖，中奖名单将于下周一公布。
-                    </div>
-                    <div class="rights-img-wrapper"></div>
-                </div>
-
-                <!-- 纯文字通知 -->
-                <div class="rights-item">
-                    <div class="rights-header">
-                        <span class="rights-tag">发货通知</span>
-                        <span class="rights-time">2025-04-20</span>
-                    </div>
-                    <div class="rights-title">实体专辑第二批次发货进度更新</div>
-                    <div class="rights-content">
-                        尊敬的用户，您绑定的《STUPID POP SONGS》实体专辑第二批次已经开始陆续通过顺丰发货。受部分地区物流影响，预计将在 3-5 个工作日内送达，请注意查收快递通知。感谢您的耐心等待与支持！
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
