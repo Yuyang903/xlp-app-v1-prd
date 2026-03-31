@@ -220,11 +220,10 @@
                     </div>
                     <div class="menu-right"><div class="arrow">></div></div>
                 </div>
-                <!-- Device Unbind (hidden by default) -->
                 <div class="menu-item" onclick="openModal('unbindModal')" id="unbindMenu" style="display: none;">
                     <div class="menu-left">
-                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        设备解绑
+                        <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        账号注销
                     </div>
                     <div class="menu-right"><div class="arrow">></div></div>
                 </div>
@@ -337,14 +336,14 @@
         </div>
     </div>
 
-    <!-- Unbind Modal -->
+    <!-- Unbind/Delete Account Modal -->
     <div class="modal-overlay" id="unbindModal">
         <div class="modal-box">
-            <div class="modal-title">解绑提示</div>
-            <div class="modal-desc">解绑后该设备将无法快速登录，是否确认解绑？</div>
+            <div class="modal-title">账号注销提示</div>
+            <div class="modal-desc">注销后账号绑定的所有数字资产将被永久清空且不可恢复，是否确认注销？</div>
             <div class="modal-btns">
                 <div class="modal-btn cancel" onclick="closeModal('unbindModal')">取消</div>
-                <div class="modal-btn danger" onclick="closeModal('unbindModal'); showToast('解绑成功');">确认解绑</div>
+                <div class="modal-btn danger" onclick="closeModal('unbindModal'); showToast('注销申请已提交');">确认注销</div>
             </div>
         </div>
     </div>
