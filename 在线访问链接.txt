@@ -1,0 +1,2 @@
+GitHub 仓库地址: https://github.com/Yuyang903/xlp-app-v1-prd
+GitHub Pages 访问链接 (需手动开启 Pages 功能): https://yuyang903.github.io/xlp-app-v1-prd/
