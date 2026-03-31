@@ -172,6 +172,16 @@
             cursor: zoom-in;
         }
         
+        /* 内嵌原型的通用包装器样式（PC 和移动端共用居中与间隙逻辑） */
+        .prototype-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            margin: 30px 0; /* 与上方说明保持间隙 */
+        }
+        
         /* 移动端响应式优化 */
         @media screen and (max-width: 768px) {
             body {
@@ -208,11 +218,6 @@
             
             /* 处理内嵌原型的缩放 */
             .prototype-wrapper {
-                position: relative;
-                width: 100%;
-                overflow: hidden;
-                display: flex;
-                justify-content: center;
                 margin: 20px 0;
             }
             
