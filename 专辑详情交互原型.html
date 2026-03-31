@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>享乐派App_v1.0 - 专辑详情原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", STHeiti, "Microsoft Yahei", Tahoma, Simsun, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e0e5ec;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 模拟手机外壳 */
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #17181c;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border-radius: 40px;
+            border: 12px solid #000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部状态栏模拟 */
+        .status-bar {
+            height: 44px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        
+        .status-bar svg {
+            stroke: #fff;
+        }
+
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 28px;
+            background-color: #000;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 105;
+        }
+
+        /* 顶部专辑信息区 (固定在顶部) */
+        .header-info-area {
+            position: relative;
+            padding: 50px 20px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(23,24,28,1) 100%);
+            z-index: 50;
+        }
+
+        /* 顶部模糊背景图 */
+        .header-bg-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./陶喆封面图.png');
+            background-size: cover;
+            background-position: center;
+            filter: blur(30px) brightness(0.4);
+            z-index: -1;
+        }
+
+        .header-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .collect-time {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .album-brief {
+            display: flex;
+            gap: 15px;
+        }
+
+        .brief-cover {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background-image: url('./陶喆封面图.png');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .brief-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brief-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .brief-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid;
+        }
+        .tag-physical { color: #4ad8db; border-color: #4ad8db; }
+        .tag-digital { color: #92e52b; border-color: #92e52b; }
+
+        .brief-name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .brief-artist {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        /* 导航 Tab */
+        .tab-nav-container {
+            position: sticky;
+            top: 0;
+            background-color: #17181c;
+            z-index: 40;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            /* 添加光晕过渡效果 */
+            box-shadow: 0 -10px 20px rgba(74, 216, 219, 0.1);
+        }
+
+        .tab-nav {
+            display: flex;
+            overflow-x: auto;
+            padding: 0 10px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .tab-nav::-webkit-scrollbar { display: none; /* Chrome */ }
+
+        .tab-item {
+            padding: 15px 15px;
+            color: #7a7a7d;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s, font-weight 0.2s;
+        }
+
+        .tab-item.active {
+            color: #fff;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: #fff;
+            border-radius: 2px;
+        }
+
+        /* 内容区容器 */
+        .content-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #17181c;
+            padding-bottom: 40px;
+        }
+        .content-scroll-area::-webkit-scrollbar { display: none; }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === 1. 专辑页内容 === */
+        .track-list-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .track-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+        }
+
+        .track-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .track-name {
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .track-duration {
+            color: #7a7a7d;
+            font-size: 12px;
+        }
+
+        .play-btn-outline {
+            width: 28px;
+            height: 28px;
+            border: 1.5px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .play-btn-outline svg {
+            width: 12px;
+            height: 12px;
+            fill: #fff;
+            margin-left: 2px;
+        }
+
+        .album-intro-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .intro-title-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #39ff14, #00d0ff);
+            color: #000;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.8;
+            text-align: justify;
+            margin-bottom: 20px;
+        }
+
+        .intro-highlight {
+            color: #39ff14;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        /* === 2. 徽章页内容 === */
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 15px;
+        }
+
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .badge-icon {
+            width: 80px;
+            height: 80px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 8px;
+            filter: grayscale(100%) opacity(0.5); /* 默认未解锁状态 */
+            transition: transform 0.2s;
+        }
+
+        .badge-item.unlocked .badge-icon {
+            filter: none;
+        }
+
+        .badge-item:active .badge-icon {
+            transform: scale(0.95);
+        }
+
+        .badge-name {
+            color: #7a7a7d;
+            font-size: 12px;
+            text-align: center;
+        }
+        .badge-item.unlocked .badge-name {
+            color: #fff;
+        }
+
+        /* === 3. 小卡页内容 === */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .card-item {
+            aspect-ratio: 2 / 3;
+            border-radius: 12px;
+            background-color: #2b2c31;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* 模拟未解锁的卡片占位 */
+        .card-item.locked {
+            background-color: #fff;
+            opacity: 0.1;
+        }
+
+        .card-info-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .card-text-main { color: #fff; font-size: 12px; font-weight: bold; }
+        .card-text-sub { color: #ccc; font-size: 10px; }
+
+        /* === 4. 写真页内容 === */
+        .photo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .photo-item {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            background-color: #2b2c31;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* === 5. MV页内容 === */
+        .mv-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .mv-item {
+            width: 100%;
+        }
+
+        .mv-video-placeholder {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .mv-play-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mv-play-btn svg { width: 20px; height: 20px; fill: #fff; margin-left: 4px; }
+
+        .mv-tip {
+            position: absolute;
+            bottom: 15px;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .mv-title {
+            color: #fff;
+            font-size: 16px;
+        }
+
+        /* === 6. 社区页内容 === */
+        .community-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #ccc;
+            background-color: #2b2c31;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background-color: #4ad8db;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .post-item {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #555;
+            background-size: cover;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-author { color: #fff; font-size: 14px; }
+        .post-time { color: #7a7a7d; font-size: 10px; margin-top: 2px; }
+
+        .post-content {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .post-images {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .post-img {
+            flex: 1;
+            aspect-ratio: 1;
+            background-color: #2b2c31;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: flex-end;
+            color: #7a7a7d;
+            font-size: 12px;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-footer svg { width: 14px; height: 14px; fill: currentColor; }
+        
+        .post-footer.liked {
+            color: #4ad8db;
+        }
+
+        /* 悬浮发布按钮 */
+        .fab-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        /* === 7. 播放器全屏页 === */
+        .player-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 500;
+            display: none; /* 默认隐藏 */
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .player-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./陶喆封面图.png');
+            background-size: cover;
+            background-position: center;
+            filter: blur(50px) brightness(0.3);
+            z-index: -1;
+            /* 模拟设计稿底部的极光色块 */
+            box-shadow: inset 0 -200px 100px -50px rgba(74, 216, 219, 0.2), inset 0 -200px 100px -50px rgba(57, 255, 20, 0.1);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px 20px 20px;
+        }
+
+        .player-down-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .player-down-btn svg { stroke: #fff; width: 24px; height: 24px; }
+
+        .lyric-toggle-btn {
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            color: #ccc;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .lyric-toggle-btn.active {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        /* 播放器主体视图：封面/歌词 切换 */
+        .player-main-view {
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+
+        .player-cover-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+
+        .player-large-cover {
+            width: 280px;
+            height: 280px;
+            border-radius: 20px;
+            background-image: url('./陶喆封面图.png');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            /* 背后叠加两层阴影模拟卡片堆叠效果 */
+            position: relative;
+        }
+        .player-large-cover::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            z-index: -1;
+        }
+
+        .player-lyric-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .player-main-view.show-lyric .player-cover-view {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .player-main-view.show-lyric .player-lyric-view {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lyric-song-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .lyric-song-name { color: #fff; font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .lyric-singer-name { color: #7a7a7d; font-size: 14px; }
+
+        .lyric-scroll-area {
+            flex: 1;
+            width: 100%;
+            overflow-y: auto;
+            text-align: center;
+            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        }
+        .lyric-scroll-area::-webkit-scrollbar { display: none; }
+
+        .lyric-line {
+            color: #7a7a7d;
+            font-size: 16px;
+            margin: 25px 0;
+            transition: all 0.3s;
+        }
+        .lyric-line.active {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 底部控制区 */
+        .player-controls {
+            padding: 20px 30px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .player-song-title {
+            text-align: center;
+        }
+        .player-song-title h3 { color: #fff; font-size: 20px; margin-bottom: 5px; }
+        .player-song-title p { color: #7a7a7d; font-size: 14px; }
+
+        /* 模拟音轨波形 */
+        .audio-wave {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 40px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .wave-bar {
+            width: 2px;
+            background-color: #333;
+            border-radius: 1px;
+        }
+        .wave-bar.active {
+            background-color: #4ad8db;
+        }
+        
+        .progress-container {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-top: -25px; /* 叠加在波形上 */
+        }
+        .progress-line {
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            position: relative;
+        }
+        .progress-active {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 30%;
+            background: #4ad8db;
+        }
+        .progress-handle {
+            position: absolute;
+            top: 50%;
+            left: 30%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(74, 216, 219, 0.5);
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            color: #7a7a7d;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .control-icon {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+            cursor: pointer;
+        }
+
+        .play-pause-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .play-pause-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+            margin-left: 4px;
+        }
+
+        /* 播放列表弹窗 */
+        .playlist-modal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: #1c1c1e;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 600;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .playlist-modal.show {
+            transform: translateY(0);
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .playlist-title { color: #fff; font-size: 18px; font-weight: bold; }
+        .playlist-close { color: #ccc; font-size: 24px; cursor: pointer; }
+
+        .playlist-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px;
+        }
+        .playlist-content::-webkit-scrollbar { display: none; }
+
+        /* 列表项，复用之前的 track-item 样式 */
+        .playlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .playlist-item.playing .track-name { color: #4ad8db; }
+        /* 正在播放的动画柱子图标 */
+        .playing-bars {
+            display: none;
+            align-items: flex-end;
+            gap: 2px;
+            height: 12px;
+            margin-right: 10px;
+        }
+        .playlist-item.playing .playing-bars { display: flex; }
+        .bar { width: 3px; background: #4ad8db; animation: bounce 1s infinite ease-in-out alternate; }
+        .bar:nth-child(1) { height: 60%; animation-delay: 0s; }
+        .bar:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+        .bar:nth-child(3) { height: 40%; animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            from { height: 20%; }
+            to { height: 100%; }
+        }
+
+        /* 吐司提示 */
+        .toast {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255,255,255,0.9);
+            color: #17181c;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            z-index: 3000;
+            white-space: nowrap;
+        }
+        
+        /* 底部 iOS 横条 */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 4px;
+            background-color: #fff;
+            border-radius: 2px;
+            z-index: 200;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="device-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <span id="clock">17:47</span>
+        <span>
+            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="#fff" stroke-width="1.5"><path d="M1 13h14M4 9h8M7 5h2"></path></svg>
+            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#fff" stroke-width="1.5" style="margin-left: 5px;"><rect x="1" y="3" width="14" height="8" rx="2"></rect><path d="M17 6v2"></path></svg>
+        </span>
+    </div>
+
+    <!-- 顶部固定专辑信息区 -->
+    <div class="header-info-area">
+        <div class="header-bg-blur"></div>
+        
+        <div class="header-top-bar">
+            <div class="close-btn" onclick="showToast('返回上一页')">✕</div>
+            <div class="collect-time">收藏时间：2025年4月20日</div>
+        </div>
+
+        <div class="album-brief">
+            <div class="brief-cover"></div>
+            <div class="brief-info">
+                <div class="brief-tags">
+                    <span class="brief-tag tag-physical">实体专辑</span>
+                    <span class="brief-tag tag-digital">电子专辑</span>
+                </div>
+                <div class="brief-name">STUPID POP SONGS</div>
+                <div class="brief-artist">陶喆</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导航 Tabs -->
+    <div class="tab-nav-container">
+        <div class="tab-nav" id="tab-nav">
+            <div class="tab-item active" onclick="switchTab('album')">专辑</div>
+            <div class="tab-item" onclick="switchTab('mv')">MV</div>
+            <div class="tab-item" onclick="switchTab('photo')">写真</div>
+            <div class="tab-item" onclick="switchTab('badge')">徽章</div>
+            <div class="tab-item" onclick="switchTab('card')">小卡</div>
+            <div class="tab-item" onclick="switchTab('community')">社区</div>
+        </div>
+    </div>
+
+    <!-- 内容滚动区 -->
+    <div class="content-scroll-area">
+        
+        <!-- 1. 专辑 (曲目列表) -->
+        <div id="tab-album" class="tab-content active">
+            
+            <div class="track-item" onclick="openPlayer()">
+                <div class="track-info">
+                    <div class="track-name">01、Stupid Pop Songs</div>
+                    <div class="track-duration">陶喆</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="track-item" onclick="openPlayer()">
+                <div class="track-info">
+                    <div class="track-name">02、Moonchild</div>
+                    <div class="track-duration">陶喆</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="track-item" onclick="openPlayer()">
+                <div class="track-info">
+                    <div class="track-name">03、星心</div>
+                    <div class="track-duration">陶喆</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="track-item" onclick="openPlayer()">
+                <div class="track-info">
+                    <div class="track-name">04、一点点</div>
+                    <div class="track-duration">陶喆</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="track-item" onclick="openPlayer()">
+                <div class="track-info">
+                    <div class="track-name">05、路上</div>
+                    <div class="track-duration">陶喆</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="track-item" onclick="openPlayer()">
+                <div class="track-info">
+                    <div class="track-name">06、半晴天</div>
+                    <div class="track-duration">陶喆</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+
+            <!-- 专辑介绍 -->
+            <div class="album-intro-section">
+                <div class="intro-title-badge">专辑介绍</div>
+                <div class="intro-text">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        鼓励创造自己的主流，打造下个时代的经典，本然流传的 Pop Song<br>
+                        「你是熟悉的陶喆回来了」<br>
+                        也许你太年轻没经历过1997年陶喆的横空出世。<br>
+                        这次一定要把握2025年陶喆的时代回归！
+                    </div>
+                </div>
+                <div class="intro-highlight">陶喆第8张录音室专辑《STUPID POP SONGS》</div>
+                <div class="intro-text">
+                    陶喆历经多年累积，无数次自我推翻，加上一点"笨笨的"精神，以"打破破坏"为名，试着突破框架挑战音乐可能。不畏前路、不怕被疑、玩出新花样！所以也愚蠢可以被说，大声可以嘶吼。砸碎可以击破隔阂，回归才能找到独特的表达。找到共鸣的核心价值。
+                </div>
+                <div class="intro-highlight">Why so stupid? >>> 「勇于创新，突破了框架」</div>
+                <div class="intro-text">
+                    这对于做音乐的思考，也是他对整张专辑的企划概念。各个形式重新站在你面前。视觉设计就像是 DT 公仔从水泥砖里奋力破壳而出，经过破坏与被破坏的艺术过程，留下的痕迹和给予的信息。也许一首一首 Stupid Pop Songs 都会慢慢从你的人生经过。
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MV -->
+        <div id="tab-mv" class="tab-content">
+            <div class="mv-list">
+                <div class="mv-item">
+                    <div class="mv-video-placeholder" onclick="showToast('正在播放视频...')">
+                        <div class="mv-play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+                        <div class="mv-tip">视频样式跟随播放器</div>
+                    </div>
+                    <div class="mv-title">这是视频标题1</div>
+                </div>
+                <div class="mv-item">
+                    <div class="mv-video-placeholder" onclick="showToast('正在播放视频...')">
+                        <div class="mv-play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+                        <div class="mv-tip">视频样式跟随播放器</div>
+                    </div>
+                    <div class="mv-title">这是视频标题2</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 写真 -->
+        <div id="tab-photo" class="tab-content">
+            <div class="photo-list">
+                <!-- 模拟设计稿中的宽幅写真海报 -->
+                <div class="photo-item" style="background: linear-gradient(45deg, #2c3e50, #000000); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff;" onclick="showToast('查看写真大图')">
+                    <div style="font-size: 24px; font-weight: 900; font-style: italic;">STUPID POP SONGS</div>
+                    <div style="font-size: 12px; margin-top: 5px; color: #aaa;">07.11</div>
+                </div>
+                <div class="photo-item" style="background: linear-gradient(45deg, #1a2a6c, #112240); display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff;" onclick="showToast('查看写真大图')">
+                    <div style="font-size: 24px; font-weight: 900; font-style: italic;">STUPID POP SONGS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 徽章 -->
+        <div id="tab-badge" class="tab-content">
+            <div class="badge-grid">
+                <!-- 解锁的徽章 -->
+                <div class="badge-item unlocked" onclick="showToast('查看徽章详情')">
+                    <!-- 使用渐变模拟设计稿中蓝色的广州站徽章 -->
+                    <div class="badge-icon" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        <div style="position: absolute; bottom: -5px; background: #f6d365; color: #fff; font-size: 8px; padding: 2px 6px; border-radius: 4px;">快闪·广州站</div>
+                    </div>
+                    <div class="badge-name">线下快闪-广州站</div>
+                </div>
+                
+                <!-- 未解锁徽章占位 -->
+                <script>
+                    for(let i=0; i<11; i++) {
+                        document.write(`
+                        <div class="badge-item" onclick="showToast('该徽章尚未解锁')">
+                            <div class="badge-icon" style="background: #333; border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                                <div style="position: absolute; bottom: -5px; background: #444; color: #777; font-size: 8px; padding: 2px 6px; border-radius: 4px;">快闪·广州站</div>
+                            </div>
+                            <div class="badge-name">线下快闪-广州站</div>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </div>
+
+        <!-- 5. 小卡 -->
+        <div id="tab-card" class="tab-content">
+            <div class="card-grid">
+                <!-- 解锁的小卡 -->
+                <div class="card-item" style="background-image: url('./陶喆封面图.png');" onclick="showToast('查看小卡大图')">
+                    <div class="card-info-overlay">
+                        <div>
+                            <div class="card-text-main">陶喆</div>
+                            <div class="card-text-sub">David Tao</div>
+                        </div>
+                        <div style="color: #fff; font-size: 10px; font-weight: bold;">JVR Music</div>
+                    </div>
+                </div>
+                <!-- 未解锁小卡 (白板占位) -->
+                <div class="card-item locked" onclick="showToast('该小卡尚未解锁')"></div>
+                
+                <!-- 更多模拟小卡 -->
+                <div class="card-item" style="background: #444; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="showToast('查看小卡大图')">模拟图片1</div>
+                <div class="card-item" style="background: #333; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 12px;" onclick="showToast('查看小卡大图')">模拟图片2</div>
+            </div>
+        </div>
+
+        <!-- 6. 社区 -->
+        <div id="tab-community" class="tab-content">
+            <div class="community-filters">
+                <div class="filter-btn active">最热</div>
+                <div class="filter-btn">最新</div>
+            </div>
+
+            <!-- 动态 1 -->
+            <div class="post-item">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23ffcc00%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22%23fff%22/></svg>');"></div>
+                    <div class="post-user-info">
+                        <div class="post-author">多啦B梦、Chuang</div>
+                        <div class="post-time">发布于:2025-09-26</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    好吧我承认我是看两场演唱会以后才完完全全get到新专所有歌，甚至在北京场以前我刷到新出的微尘的mv都会直接划走，这次完完全全爱上，这两天一直循环<br><br>
+                    期待接下来的老歌改编的新专哦！永远的dt！
+                </div>
+                <div class="post-images">
+                    <div class="post-img" style="background-color: #8B0000;"></div>
+                    <div class="post-img" style="background-color: #2F4F4F;"></div>
+                    <div class="post-img" style="background-color: #000080;"></div>
+                </div>
+                <div class="post-footer">
+                    <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                    1.7k
+                </div>
+            </div>
+
+            <!-- 动态 2 -->
+            <div class="post-item">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-color: #4682B4;"></div>
+                    <div class="post-user-info">
+                        <div class="post-author">琪丽莫格Chelmec</div>
+                        <div class="post-time">发布于:2025-09-25</div>
+                    </div>
+                </div>
+                <div class="post-content">
+                    我这几天密集考古了陶喆，我太喜欢他了，二十多年前我只喜欢他唱歌，现在他整个人在我心中很立体。<br><br>
+                    原来他的爷爷是抗战英雄，爸爸是上海人，歌手主持人。妈妈是京剧艺术家。所以他那么喜欢写中国风。我觉得他的中国风写得是中国最好的。今天听依然很先锋。<br><br>
+                    <span style="color: #4ad8db; cursor: pointer;">展开 ∨</span>
+                </div>
+                <div class="post-images">
+                    <div class="post-img" style="background-color: #4169E1; max-width: 150px; aspect-ratio: 1;"></div>
+                </div>
+                <div class="post-footer liked">
+                    <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                    1.7k
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 社区页专属：悬浮发布按钮 -->
+    <div id="fab-post" class="fab-btn" style="display: none;" onclick="showToast('打开发布动态面板')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        发布动态
+    </div>
+
+    <!-- 吐司提示 -->
+    <div id="toast" class="toast">提示信息</div>
+
+    <!-- === 7. 播放器全屏页 === -->
+    <div id="player-overlay" class="player-overlay">
+        <div class="player-bg"></div>
+        
+        <div class="player-header">
+            <div class="player-down-btn" onclick="closePlayer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div id="lyric-btn" class="lyric-toggle-btn" onclick="toggleLyric()">歌词</div>
+        </div>
+
+        <div id="player-main" class="player-main-view" onclick="toggleLyric()">
+            <!-- 封面视图 -->
+            <div class="player-cover-view">
+                <div class="player-large-cover"></div>
+            </div>
+            
+            <!-- 歌词视图 -->
+            <div class="player-lyric-view">
+                <div class="lyric-song-info">
+                    <div class="lyric-song-name">Stupid Pop Songs</div>
+                    <div class="lyric-singer-name">陶喆</div>
+                </div>
+                <div class="lyric-scroll-area">
+                    <div class="lyric-line">这一首 全世界都会唱的歌</div>
+                    <div class="lyric-line">也许你也曾听过这首歌</div>
+                    <div class="lyric-line active">如果世界让人悲伤寂寞</div>
+                    <div class="lyric-line">让这旋律陪伴你</div>
+                    <div class="lyric-line">希望给你爱和快乐</div>
+                    <div class="lyric-line">全世界的爱 都给你</div>
+                    <div class="lyric-line">Beautiful people beautiful hearts</div>
+                    <div class="lyric-line">每一颗心都能散发光芒</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="player-song-title">
+                <h3>Stupid Pop Songs</h3>
+                <p>陶喆</p>
+            </div>
+
+            <!-- 音轨波形与进度条 -->
+            <div style="position: relative;">
+                <div class="audio-wave">
+                    <!-- 动态生成一堆波形条 -->
+                    <script>
+                        for(let i=0; i<50; i++) {
+                            const height = Math.random() * 80 + 10;
+                            const isActive = i < 15 ? 'active' : '';
+                            document.write(`<div class="wave-bar ${isActive}" style="height: ${height}%"></div>`);
+                        }
+                    </script>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-line">
+                        <div class="progress-active"></div>
+                        <div class="progress-handle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="time-info">
+                <span>01:30</span>
+                <span>05:18</span>
+            </div>
+
+            <div class="btn-group">
+                <svg class="control-icon" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="15" y2="18"></line><line x1="9" y1="10" x2="10" y2="10"></line></svg>
+                <svg class="control-icon" viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                
+                <div class="play-pause-btn" id="main-play-btn" onclick="togglePlay()">
+                    <!-- 暂停图标 -->
+                    <svg viewBox="0 0 24 24" style="margin-left:0;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </div>
+
+                <svg class="control-icon" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                <svg class="control-icon" viewBox="0 0 24 24" onclick="openPlaylist()"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 播放列表弹窗 -->
+    <div id="playlist-modal" class="playlist-modal">
+        <div class="playlist-header">
+            <div class="playlist-title">曲目列表</div>
+            <div class="playlist-close" onclick="closePlaylist()">×</div>
+        </div>
+        <div class="playlist-content">
+            <div class="playlist-item playing">
+                <div class="track-info">
+                    <div class="track-name">01、Stupid Pop Songs</div>
+                    <div class="track-duration">05:18</div>
+                </div>
+                <div class="playing-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+            <div class="playlist-item">
+                <div class="track-info">
+                    <div class="track-name" style="color: #fff;">02、Moonchild</div>
+                    <div class="track-duration">04:13</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="playlist-item">
+                <div class="track-info">
+                    <div class="track-name" style="color: #fff;">03、星心</div>
+                    <div class="track-duration">04:37</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+            <div class="playlist-item">
+                <div class="track-info">
+                    <div class="track-name" style="color: #fff;">04、一点点</div>
+                    <div class="track-duration">03:50</div>
+                </div>
+                <div class="play-btn-outline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 半透明遮罩 (用于播放列表) -->
+    <div id="dim-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:550; display:none; opacity:0; transition: opacity 0.3s;" onclick="closePlaylist()"></div>
+
+    <!-- 底部横条 -->
+    <div class="home-indicator"></div>
+</div>
+
+<script>
+    // 模拟状态栏时间
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('clock').innerText = 
+            String(now.getHours()).padStart(2, '0') + ':' + 
+            String(now.getMinutes()).padStart(2, '0');
+    }, 1000);
+
+    // 提示框逻辑
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+
+    // Tab 切换逻辑
+    function switchTab(tabId) {
+        // 1. 更新 Tab 样式
+        const tabs = document.querySelectorAll('.tab-item');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        // 2. 切换内容显示
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+
+        // 3. 将选中的 Tab 滚动到可视区域中间
+        const navContainer = document.getElementById('tab-nav');
+        const targetTab = event.currentTarget;
+        const scrollLeft = targetTab.offsetLeft - (navContainer.offsetWidth / 2) + (targetTab.offsetWidth / 2);
+        navContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+
+        // 4. 特殊处理：只有在社区页面才显示发布动态按钮
+        const fabBtn = document.getElementById('fab-post');
+        if (tabId === 'community') {
+            fabBtn.style.display = 'flex';
+        } else {
+            fabBtn.style.display = 'none';
+        }
+    }
+
+    // === 播放器相关逻辑 ===
+    function openPlayer() {
+        const player = document.getElementById('player-overlay');
+        player.style.display = 'flex';
+    }
+
+    function closePlayer() {
+        const player = document.getElementById('player-overlay');
+        player.style.animation = 'slideDown 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        setTimeout(() => {
+            player.style.display = 'none';
+            player.style.animation = 'slideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)'; // 恢复动画
+        }, 380);
+    }
+
+    // 动态添加一个向下的动画
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes slideDown { from { transform: translateY(0); } to { transform: translateY(100%); } }`;
+    document.head.appendChild(style);
+
+    let isPlaying = true;
+    function togglePlay() {
+        const btn = document.getElementById('main-play-btn');
+        isPlaying = !isPlaying;
+        if(isPlaying) {
+            btn.innerHTML = `<svg viewBox="0 0 24 24" style="margin-left:0;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+        } else {
+            btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        }
+    }
+
+    function toggleLyric() {
+        const mainView = document.getElementById('player-main');
+        const lyricBtn = document.getElementById('lyric-btn');
+        if (mainView.classList.contains('show-lyric')) {
+            mainView.classList.remove('show-lyric');
+            lyricBtn.classList.remove('active');
+        } else {
+            mainView.classList.add('show-lyric');
+            lyricBtn.classList.add('active');
+        }
+    }
+
+    function openPlaylist() {
+        document.getElementById('dim-overlay').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('dim-overlay').style.opacity = '1';
+            document.getElementById('playlist-modal').classList.add('show');
+        }, 10);
+    }
+
+    function closePlaylist() {
+        document.getElementById('playlist-modal').classList.remove('show');
+        document.getElementById('dim-overlay').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('dim-overlay').style.display = 'none';
+        }, 300);
+    }
+
+</script>
+
+</body>
+</html>
