@@ -171,6 +171,65 @@
         .image-gallery img {
             cursor: zoom-in;
         }
+        
+        /* 移动端响应式优化 */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .container {
+                padding: 20px 15px;
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+            h2 {
+                font-size: 1.2em;
+                margin-top: 30px;
+                padding: 6px 10px;
+            }
+            h3 {
+                font-size: 1.1em;
+                margin-top: 25px;
+            }
+            .function-desc {
+                padding: 15px;
+            }
+            
+            /* 处理代码块在手机端的显示 */
+            pre {
+                font-size: 11px !important;
+                padding: 8px !important;
+            }
+            
+            /* 处理内嵌原型的缩放 */
+            .prototype-wrapper {
+                position: relative;
+                width: 100%;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                margin: 20px 0;
+            }
+            
+            /* 手机屏幕较小时，对 iframe 进行缩放以适应屏幕宽度 */
+            .prototype-wrapper iframe {
+                transform: scale(0.8); /* 缩小比例，防止横向撑破 */
+                transform-origin: top center;
+                margin-bottom: -150px; /* 补偿因缩放产生的高度空白 */
+            }
+            
+            @media screen and (max-width: 380px) {
+                .prototype-wrapper iframe {
+                    transform: scale(0.7);
+                    margin-bottom: -240px;
+                }
+            }
+        }
     </style>
 </head>
 <body>
@@ -413,7 +472,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>协议强校验</strong>：所有登录方式均要求勾选用户协议，未勾选时拦截并弹窗提示确认。</li>
                 </ol>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./登录模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
@@ -429,7 +488,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>添加成功反馈</strong>：成功绑定新专辑后，首页需给出明确的视觉反馈与动效。</li>
                 </ol>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./首页模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
@@ -444,7 +503,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>异常处理</strong>：若识别码无效、已被绑定或读取失败，弹出明确的错误提示。</li>
                 </ol>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./识别与添加模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
@@ -464,7 +523,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>6.4.7 社区（暂不开放）</strong>：该专辑的专属粉丝交流区，支持按最热/最新排序，支持发布图文动态。</li>
                 </ul>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./专辑详情交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
@@ -478,7 +537,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>空状态</strong>：当没有消息时展示占位缺省图。</li>
                 </ol>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./消息通知模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
@@ -494,7 +553,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>问题反馈</strong>：提供表单让用户提交使用过程中遇到的问题（支持文字描述、图片上传等），帮助优化产品。</li>
                 </ol>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./个人中心模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
@@ -509,7 +568,7 @@ CREATE TABLE `user_badges` (
                     <li><strong>在线沟通</strong>：支持文本消息收发，界面气泡区分用户（右侧）与客服（左侧），并在底部提供快捷输入栏。</li>
                 </ol>
             </div>
-            <div style="display: flex; justify-content: center; margin: 30px 0;">
+            <div class="prototype-wrapper">
                 <iframe src="./客服模块交互原型.html" width="415" height="852" frameborder="0" style="border: none; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></iframe>
             </div>
 
