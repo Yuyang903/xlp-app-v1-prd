@@ -1,160 +1,83 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>翻书动画展示 - 点击触发</title>
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background-color: #1a1a1a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  .container {
-    position: relative;
-    width: 100%;
-    max-width: 450px;
-    height: 100vh;
-    max-height: 800px;
-    background-color: #000;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
-    cursor: pointer;
-    perspective: 1500px; /* 3D透视，让翻书有立体感 */
-  }
-  
-  /* 底层图片3（永远在最下面） */
-  #img3 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-  }
+<!DOCTYPE html> 
+<html lang="zh-CN"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> 
+    <title>真实翻书特效 - 点击翻页</title> 
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+    <script src="https://cdn.bootcdn.net/ajax/libs/turn.js/3/turn.min.js"></script> 
+    
+    <style> 
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #1a1a1a; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+        } 
 
-  /* 使用一个带翻页卷边动画的外层容器来限制可视区域 */
-  .page-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* 切割内容，制作卷边效果 */
-  }
-  
-  /* 图片2，充当第一页翻走后露出的“下一页” */
-  #img2 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 2;
-    transform-origin: bottom right; 
-    /* CSS原生很难做到完美的柔性网格变形，我们通过clip-path模拟斜角切角拉起的柔性过渡 */
-    transition: clip-path 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
-  
-  /* 图片1，最上面的一页 */
-  #img1 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 3;
-    transform-origin: bottom right; 
-    box-shadow: inset 10px 0 20px rgba(0,0,0,0.2);
-    transition: clip-path 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
+        /* 视口容器：限制书籍最大尺寸并居中 */ 
+        #book-viewport { 
+            width: 100%;  
+            height: 100vh; 
+            max-width: 450px; 
+            max-height: 800px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+            background-color: #000;
+        } 
 
-  /* 翻书特效出场类：使用 clip-path 将右下角向左上切除，模拟卷起 */
-  .page-flip {
-    /* 最终切除掉整个页面，向左上角收缩到消失 */
-    clip-path: polygon(0 0, 0 0, 0 0, 0 0) !important;
-  }
-  
-  /* 卷起页面的反面模拟（阴影和背面白纸） */
-  .curl {
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(135deg, transparent 45%, rgba(255,255,255,0.9) 50%, rgba(200,200,200,1) 52%, rgba(0,0,0,0.3) 53%, transparent 55%);
-    top: -50%;
-    left: -50%;
-    z-index: 4;
-    transform: translate(100%, 100%);
-    pointer-events: none;
-    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .page-flip-curl {
-    /* 伴随裁切的卷起动画，光影也向左上角扫过 */
-    transform: translate(-100%, -100%) !important;
-  }
-</style>
-</head>
-<body>
+        /* Turn.js 主容器 */ 
+        #flipbook { 
+            width: 100%; 
+            height: 100%; 
+        } 
 
-<div class="container" id="container">
-  <img id="img3" src="./3.jpg" alt="Image 3">
-  
-  <div class="page-container" id="page2-container">
-    <img id="img2" src="./2.jpg" alt="Image 2">
-    <div class="curl" id="curl2"></div>
-  </div>
+        /* 单页样式 */ 
+        .page { 
+            width: 100%; 
+            height: 100%; 
+            background-color: white; 
+        } 
+        
+        .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style> 
+</head> 
+<body> 
 
-  <div class="page-container" id="page1-container">
-    <img id="img1" src="./1.jpg" alt="Image 1">
-    <div class="curl" id="curl1"></div>
-  </div>
-</div>
+<div id="book-viewport"> 
+    <div id="flipbook"> 
+        <div class="page"><img src="./1.jpg" alt="Image 1"></div> 
+        <div class="page"><img src="./2.jpg" alt="Image 2"></div> 
+        <div class="page"><img src="./3.jpg" alt="Image 3"></div> 
+    </div> 
+</div> 
 
-<script>
-  const container = document.getElementById('container');
-  const img1 = document.getElementById('img1');
-  const img2 = document.getElementById('img2');
-  const curl1 = document.getElementById('curl1');
-  const curl2 = document.getElementById('curl2');
-  const page1Container = document.getElementById('page1-container');
-  const page2Container = document.getElementById('page2-container');
-  
-  // 状态机: 0 = 初始显示图1; 1 = 翻开图1露图2; 2 = 翻开图2露图3
-  let currentStage = 0; 
+<script> 
+    $(document).ready(function() {
+        // 初始化 Turn.js 
+        $("#flipbook").turn({ 
+            display: 'single',    // 强制单页显示
+            acceleration: true,   // 开启硬件加速 
+            gradients: true,      // 开启翻页阴影渐变 
+            elevation: 50,        // 翻页时的拉起高度 
+            duration: 800         // 翻页动画时长 
+        }); 
 
-  container.addEventListener('click', () => {
-    if (currentStage === 0) {
-      // 第一页柔性翻开
-      img1.classList.add('page-flip');
-      curl1.classList.add('page-flip-curl');
-      currentStage = 1;
-      
-      setTimeout(() => {
-        page1Container.style.display = 'none';
-      }, 1500);
-      
-    } else if (currentStage === 1) {
-      // 第二页柔性翻开
-      img2.classList.add('page-flip');
-      curl2.classList.add('page-flip-curl');
-      currentStage = 2;
-      
-      setTimeout(() => {
-        page2Container.style.display = 'none';
-      }, 1500);
-    } 
-  });
-</script>
-</body>
+        // 点击容器任意位置触发翻下一页
+        $("#book-viewport").on("click", function() {
+            $("#flipbook").turn("next");
+        });
+    });
+</script> 
+
+</body> 
 </html>
