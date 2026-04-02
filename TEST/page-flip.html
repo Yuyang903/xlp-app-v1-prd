@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>翻书动画展示 - 点击触发</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    height: 100vh;
+    max-height: 800px;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    cursor: pointer;
+    perspective: 1500px; /* 3D透视，让翻书有立体感 */
+  }
+  
+  /* 底层图片3（永远在最下面） */
+  #img3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* 图片2，充当第一页翻走后露出的“下一页” */
+  #img2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+    transform-origin: left center; /* 像书页一样绕左侧边缘翻转 */
+    transform-style: preserve-3d;
+    transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  
+  /* 图片1，最上面的一页 */
+  #img1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 3;
+    transform-origin: left center; /* 绕左侧边缘翻转 */
+    transform-style: preserve-3d;
+    /* 增加阴影，使其更像真实的书页 */
+    box-shadow: inset 10px 0 20px rgba(0,0,0,0.2);
+    transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+
+  /* 翻书特效出场类：绕左轴向屏幕左侧外翻转（像左翻开一页书） */
+  .page-flip {
+    transform: rotateY(-110deg); 
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="container">
+  <img id="img3" src="./3.jpg" alt="Image 3">
+  <img id="img2" src="./2.jpg" alt="Image 2">
+  <img id="img1" src="./1.jpg" alt="Image 1">
+</div>
+
+<script>
+  const container = document.getElementById('container');
+  const img1 = document.getElementById('img1');
+  const img2 = document.getElementById('img2');
+  
+  // 状态机: 0 = 初始显示图1; 1 = 翻开图1露图2; 2 = 翻开图2露图3
+  let currentStage = 0; 
+
+  container.addEventListener('click', () => {
+    if (currentStage === 0) {
+      // 第一页翻开
+      img1.classList.add('page-flip');
+      currentStage = 1;
+      
+      // 动画结束后隐藏节点，避免遮挡底层交互（如果有的话）
+      setTimeout(() => {
+        img1.style.display = 'none';
+      }, 1500);
+      
+    } else if (currentStage === 1) {
+      // 第二页翻开
+      img2.classList.add('page-flip');
+      currentStage = 2;
+      
+      setTimeout(() => {
+        img2.style.display = 'none';
+      }, 1500);
+    } 
+  });
+</script>
+</body>
+</html>
