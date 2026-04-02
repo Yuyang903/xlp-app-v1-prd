@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试动画展示 - 点击触发</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    height: 100vh;
+    max-height: 800px;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    overflow: hidden;
+    cursor: pointer; /* 提示用户可以点击 */
+  }
+  
+  /* 底层图片3 */
+  #img3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* Canvas 用于绘制图2及其溶解特效 */
+  #canvas2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+  
+  /* 最上层图片1 */
+  #img1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: center center;
+    z-index: 3;
+    /* 默认状态：静止 */
+    transform: scale(1) rotate(0deg);
+    filter: blur(0px);
+    opacity: 1;
+    /* transition 实现点击后的动画效果: transform(包含放大和旋转) 3s */
+    transition: transform 3s linear, filter 2s linear 1s, opacity 1s linear 2s;
+  }
+
+  /* 当触发图1到图2的动画时添加此 class */
+  #img1.animate-out {
+    transform: scale(5) rotate(-180deg); /* 0-3秒线性放大1到5倍，同时向左旋转180度 */
+    filter: blur(20px);                 /* 延迟1秒后，在剩余的2秒内模糊到20px */
+    opacity: 0;                         /* 延迟2秒后，在最后的1秒内透明化消失 */
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="container">
+  <img id="img3" src="https://static.xlpai.com/upload/image/fe/2f/77/fe2f77596b5afb96b003df42d82d5189.jpg" crossorigin="anonymous" alt="Image 3">
+  <canvas id="canvas2"></canvas>
+  <img id="img1" src="https://static.xlpai.com/upload/image/a5/c2/5c/a5c25cf036640b6f320a96d22d23ef94.jpg" crossorigin="anonymous" alt="Image 1">
+</div>
+
+<script>
+  const container = document.getElementById('container');
+  const img1 = document.getElementById('img1');
+  const canvas = document.getElementById('canvas2');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  
+  // 状态机: 0 = 初始显示图1; 1 = 显示图2; 2 = 显示图3
+  let currentStage = 0; 
+  
+  // 图片2对象
+  const img2 = new Image();
+  img2.crossOrigin = "anonymous"; // 解决 Canvas 读取跨域图片时的安全报错问题
+  img2.src = 'https://static.xlpai.com/upload/image/12/ec/82/12ec827615d3eca2323e1e52dbea7dd0.jpg';
+
+  // 方块特效配置
+  const BLOCK_SIZE = 20; // 溶解方块的边长大小
+  const DISSOLVE_DURATION = 1000; // 图2到图3的溶解动画持续 1 秒
+  let blocks = [];
+  let isImageLoaded = false;
+  let imgWidth, imgHeight, drawX, drawY, drawWidth, drawHeight;
+
+  // 溶解动画所需状态变量
+  let dissolveStartTime = null;
+  let isDissolving = false;
+  let offscreen = document.createElement('canvas');
+
+  // 计算并保存 object-fit: cover 的绘制参数
+  function calculateCover() {
+    const canvasRatio = canvas.width / canvas.height;
+    const imgRatio = img2.width / img2.height;
+    
+    if (canvasRatio > imgRatio) {
+      drawWidth = canvas.width;
+      drawHeight = canvas.width / imgRatio;
+      drawX = 0;
+      drawY = (canvas.height - drawHeight) / 2;
+    } else {
+      drawHeight = canvas.height;
+      drawWidth = canvas.height * imgRatio;
+      drawX = (canvas.width - drawWidth) / 2;
+      drawY = 0;
+    }
+  }
+
+  // 初始化方块数组
+  function initBlocks() {
+    blocks = [];
+    const cols = Math.ceil(canvas.width / BLOCK_SIZE);
+    const rows = Math.ceil(canvas.height / BLOCK_SIZE);
+    
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        blocks.push({
+          x: c * BLOCK_SIZE,
+          y: r * BLOCK_SIZE,
+          // 为每个方块随机分配一个“消失阈值” (0 到 1 之间)
+          threshold: Math.random() 
+        });
+      }
+    }
+  }
+
+  // 调整 Canvas 尺寸并重新绘制静态图2
+  function resizeCanvas() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    offscreen.width = canvas.width;
+    offscreen.height = canvas.height;
+
+    if (isImageLoaded) {
+      calculateCover();
+      initBlocks();
+      
+      // 如果还没开始溶解，或者还停留在阶段0/1，则绘制完整的图2
+      if (!isDissolving && currentStage < 2) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img2, drawX, drawY, drawWidth, drawHeight);
+      }
+    }
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+
+  img2.onload = () => {
+    isImageLoaded = true;
+    resizeCanvas();
+  };
+
+  // 渲染溶解特效循环
+  function renderDissolve(timestamp) {
+    if (!dissolveStartTime) dissolveStartTime = timestamp;
+    
+    // 计算当前经过的时间
+    const elapsed = timestamp - dissolveStartTime;
+    
+    // 如果动画已经结束
+    if (elapsed >= DISSOLVE_DURATION) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // 完全清空 canvas，露出图3
+      isDissolving = false;
+      return; // 结束渲染循环
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 进度 0.0 ~ 1.0
+    let progress = elapsed / DISSOLVE_DURATION;
+    
+    // 先将整张图2画到离屏 canvas 上
+    const offCtx = offscreen.getContext('2d');
+    offCtx.clearRect(0, 0, offscreen.width, offscreen.height);
+    offCtx.drawImage(img2, drawX, drawY, drawWidth, drawHeight);
+
+    // 根据进度，只绘制那些“还未消失”的方块
+    for (let i = 0; i < blocks.length; i++) {
+      const b = blocks[i];
+      if (progress < b.threshold) {
+        ctx.drawImage(
+          offscreen, 
+          b.x, b.y, BLOCK_SIZE, BLOCK_SIZE,
+          b.x, b.y, BLOCK_SIZE, BLOCK_SIZE
+        );
+      }
+    }
+
+    requestAnimationFrame(renderDissolve);
+  }
+
+  // 监听点击事件触发动画
+  container.addEventListener('click', () => {
+    if (currentStage === 0) {
+      // 阶段 0 -> 1: 点击触发图1放大、模糊、消失的过渡
+      img1.classList.add('animate-out');
+      currentStage = 1;
+      // 3秒后动画结束，可以将 img1 彻底隐藏以优化性能
+      setTimeout(() => {
+        img1.style.display = 'none';
+      }, 3000);
+      
+    } else if (currentStage === 1) {
+      // 阶段 1 -> 2: 点击触发图2到图3的方块溶解特效
+      if (isImageLoaded && !isDissolving) {
+        isDissolving = true;
+        dissolveStartTime = null; // 重置开始时间
+        requestAnimationFrame(renderDissolve);
+        currentStage = 2;
+      }
+    } else if (currentStage === 2) {
+      // 如果想要无限循环点击的话，可以在这里重置回阶段 0
+      /*
+      currentStage = 0;
+      img1.style.display = 'block';
+      // 强制触发重排，使移除 class 立即生效而不是产生倒退动画
+      img1.offsetHeight; 
+      img1.classList.remove('animate-out');
+      resizeCanvas(); // 重新画出完整的图2
+      */
+    }
+  });
+
+</script>
+</body>
+</html>
