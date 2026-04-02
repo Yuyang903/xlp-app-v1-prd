@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试动画展示 - 点击触发</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    height: 100vh;
+    max-height: 800px;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    overflow: hidden;
+    cursor: pointer; /* 提示用户可以点击 */
+  }
+  
+  /* 底层图片3 */
+  #img3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* 图片2：与图片1共享相同的动画基础属性 */
+  #img2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: 50% 60%;
+    z-index: 2;
+    transform: scale(1) rotate(0deg);
+    filter: blur(0px);
+    opacity: 1;
+    /* 放大: 0-3秒 (持续3秒) | 模糊: 0-3秒 (持续3秒) | 透明: 1-3秒 (延迟1秒，持续2秒) */
+    transition: transform 3s linear, filter 3s linear 0s, opacity 2s linear 1s;
+  }
+  
+  /* 最上层图片1 */
+  #img1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 以图片中的圆形为锚点，大约在中间偏下位置，具体比例需要根据实际图片中的圆心位置微调，这里假设在50% 60%处 */
+    transform-origin: 50% 60%;
+    z-index: 3;
+    transform: scale(1) rotate(0deg);
+    filter: blur(0px);
+    opacity: 1;
+    /* 放大: 0-3秒 (持续3秒) | 旋转: 0-3秒 (持续3秒) | 模糊: 0-3秒 (持续3秒) | 透明: 1-3秒 (延迟1秒，持续2秒) */
+    transition: transform 3s linear, filter 3s linear 0s, opacity 2s linear 1s;
+  }
+
+  /* 动画出场类：用于放大、模糊并透明化 */
+  .animate-out {
+    transform: scale(5) rotate(180deg) !important;
+    filter: blur(20px) !important;
+    opacity: 0 !important;
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="container">
+  <img id="img3" src="./3.jpg" crossorigin="anonymous" alt="Image 3">
+  <img id="img2" src="./2.jpg" crossorigin="anonymous" alt="Image 2">
+  <img id="img1" src="./1.jpg" crossorigin="anonymous" alt="Image 1">
+</div>
+
+<script>
+  const container = document.getElementById('container');
+  const img1 = document.getElementById('img1');
+  const img2 = document.getElementById('img2');
+  
+  // 状态机: 0 = 初始显示图1; 1 = 显示图2; 2 = 显示图3
+  let currentStage = 0; 
+
+  // 监听点击事件触发动画
+  container.addEventListener('click', () => {
+    if (currentStage === 0) {
+      // 阶段 0 -> 1: 点击触发图1放大、模糊、消失的过渡
+      img1.classList.add('animate-out');
+      currentStage = 1;
+      
+      // 3秒后动画结束，彻底隐藏 img1
+      setTimeout(() => {
+        img1.style.display = 'none';
+      }, 3000);
+      
+    } else if (currentStage === 1) {
+      // 阶段 1 -> 2: 点击触发图2放大、模糊、消失的过渡，露出图3
+      img2.classList.add('animate-out');
+      currentStage = 2;
+      
+      // 3秒后动画结束，彻底隐藏 img2
+      setTimeout(() => {
+        img2.style.display = 'none';
+      }, 3000);
+    } 
+    // 到达阶段2后，目前没有下一步动作
+  });
+</script>
+</body>
+</html>
