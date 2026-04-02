@@ -48,9 +48,9 @@
     height: 100%;
     object-fit: cover;
     z-index: 2;
-    transform-origin: left center; /* 像书页一样绕左侧边缘翻转 */
+    transform-origin: bottom right; /* 翻页锚点：右下角 */
     transform-style: preserve-3d;
-    transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s ease-out;
   }
   
   /* 图片1，最上面的一页 */
@@ -62,16 +62,18 @@
     height: 100%;
     object-fit: cover;
     z-index: 3;
-    transform-origin: left center; /* 绕左侧边缘翻转 */
+    transform-origin: bottom right; /* 翻页锚点：右下角 */
     transform-style: preserve-3d;
     /* 增加阴影，使其更像真实的书页 */
     box-shadow: inset 10px 0 20px rgba(0,0,0,0.2);
-    transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s ease-out;
   }
 
-  /* 翻书特效出场类：绕左轴向屏幕左侧外翻转（像左翻开一页书） */
+  /* 翻书特效出场类：从右下角掀起并翻转到左上侧 */
   .page-flip {
-    transform: rotateY(-110deg); 
+    /* 调整旋转轴 (-1, 1, 0) 表示一条从左下到右上的斜线。通过旋转 130deg 产生翻卷效果，并辅以位移。*/
+    transform: rotate3d(-1, 1, 0, 130deg) translate3d(-30%, -30%, 150px);
+    opacity: 0;
   }
 </style>
 </head>
