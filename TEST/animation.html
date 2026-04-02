@@ -49,7 +49,7 @@
     object-fit: cover;
     transform-origin: 50% 60%;
     z-index: 2;
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
     filter: blur(0px);
     opacity: 1;
     /* 放大: 0-3秒 (持续3秒) | 模糊: 0-3秒 (持续3秒) | 透明: 1-3秒 (延迟1秒，持续2秒) */
@@ -67,16 +67,16 @@
     /* 以图片中的圆形为锚点，大约在中间偏下位置，具体比例需要根据实际图片中的圆心位置微调，这里假设在50% 60%处 */
     transform-origin: 50% 60%;
     z-index: 3;
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
     filter: blur(0px);
     opacity: 1;
-    /* 放大: 0-3秒 (持续3秒) | 旋转: 0-3秒 (持续3秒) | 模糊: 0-3秒 (持续3秒) | 透明: 1-3秒 (延迟1秒，持续2秒) */
+    /* 放大: 0-3秒 (持续3秒) | 模糊: 0-3秒 (持续3秒) | 透明: 1-3秒 (延迟1秒，持续2秒) */
     transition: transform 3s linear, filter 3s linear 0s, opacity 2s linear 1s;
   }
 
   /* 动画出场类：用于放大、模糊并透明化 */
   .animate-out {
-    transform: scale(5) rotate(180deg) !important;
+    transform: scale(5) !important;
     filter: blur(20px) !important;
     opacity: 0 !important;
   }
